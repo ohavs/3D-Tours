@@ -16,9 +16,11 @@
 import '@photo-sphere-viewer/core/index.css'
 import '@photo-sphere-viewer/virtual-tour-plugin/index.css'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { TourNode } from '@/lib/types'
+import type { Viewer as PSViewer } from '@photo-sphere-viewer/core'
 import type { VirtualTourNode } from '@photo-sphere-viewer/virtual-tour-plugin'
+import { Spinner } from '@/components/anim'
 
 interface TourViewerProps {
   nodes: TourNode[]
@@ -27,9 +29,10 @@ interface TourViewerProps {
 
 export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let viewer: { destroy: () => void } | null = null
+    let viewer: PSViewer | null = null
     let cancelled = false
 
     ;(async () => {
@@ -61,6 +64,11 @@ export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
           }),
         ],
       })
+
+      // מסתירים את הלואדר כשהפנורמה הראשונה מוכנה
+      viewer.addEventListener('ready', () => {
+        if (!cancelled) setLoading(false)
+      })
     })()
 
     return () => {
@@ -69,5 +77,17 @@ export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
     }
   }, [nodes, startNodeId])
 
-  return <div ref={containerRef} className="h-full w-full" />
+  return (
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full" />
+
+      {/* לואדר עד שהפנורמה הראשונה נטענת */}
+      {loading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-mist">
+          <Spinner className="h-8 w-8" />
+          <span className="text-caption text-graphite">טוען סיור…</span>
+        </div>
+      )}
+    </div>
+  )
 }

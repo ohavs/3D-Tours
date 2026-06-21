@@ -1,261 +1,179 @@
 // ============================================================
-// app/page.tsx — דף הבית (בהשראת Eden)
-// נקי, ניטרלי, אלמנטים גדולים ומעוגלים, הרבה אוויר.
-// אנימציות: כניסת hero בטעינה, וחשיפה בכניסה לכל סקשן בגלילה.
+// app/page.tsx — דף הבית (Ventriloc: קונסולת אנליטיקס על נייר)
+// hero מפוצל (טקסט + מוקאפ דשבורד), אלמנט סיור אחד, שלושה צעדים,
+// קריאה לפעולה, ופוטר. טיפוגרפיה גדולה ואחידה, אקסנט כתום עדין.
 // ============================================================
 
 import Link from 'next/link'
-import {
-  ArrowLeft,
-  ChevronLeft,
-  Users,
-  Smartphone,
-  Code2,
-  Compass,
-  BarChart3,
-  Share2,
-} from 'lucide-react'
-import { Reveal, Magnetic, CountUp } from '@/components/anim'
+import { ArrowLeft } from 'lucide-react'
+import { Reveal } from '@/components/anim'
+import HeroShowcase from '@/components/HeroShowcase'
 
-const TRUST = [
-  { icon: Users, label: 'מאות סיורים פעילים' },
-  { icon: Smartphone, label: 'צפייה מכל מכשיר' },
-  { icon: Code2, label: 'לינק + קוד הטמעה' },
-]
-
-const ROWS = [
-  { icon: Compass, title: 'ניווט בין חדרים', hint: 'חצים על הרצפה' },
-  { icon: BarChart3, title: 'אנליטיקס צפיות', hint: 'מי צפה וכמה זמן' },
-  { icon: Share2, title: 'קוד הטמעה לאתר', hint: 'iframe מוכן' },
+const STEPS = [
+  { n: '01', t: 'מצלמים', d: 'תמונת 360° לכל חדר עם מצלמת פנורמה.' },
+  { n: '02', t: 'מחברים', d: 'מסמנים חצי ניווט בין החדרים בעורך.' },
+  { n: '03', t: 'משתפים', d: 'לינק ייחודי וקוד הטמעה מוכן לכל אתר.' },
 ]
 
 export default function HomePage() {
   return (
     <main className="flex-1">
       {/* ======================= HERO ======================= */}
-      <section className="mx-auto max-w-[1180px] px-6 pb-10 pt-14 sm:pt-20">
-        {/* כותרת + פסי אמון */}
-        <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
-          <Reveal>
-            <h1 className="font-display text-heading font-extrabold text-ink sm:text-heading-lg">
-              סיור 360°
-              <br />
-              מותאם לכל נכס
-            </h1>
-            <p className="mt-5 max-w-md text-body-lg text-ash">
-              תנו ללקוחות לצעוד בתוך הנכס — מכל מקום, בכל שעה.
-            </p>
-          </Reveal>
+      <section className="mx-auto max-w-[1200px] px-6 pb-16 pt-16 sm:pt-24">
+        <div className="grid items-center gap-14 md:grid-cols-2">
+          {/* טקסט */}
+          <div>
+            <Reveal>
+              <h1 className="font-display text-heading-lg font-extrabold text-carbon sm:text-display">
+                סיור וירטואלי
+                <br />
+                לכל נכס
+              </h1>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-6 max-w-md text-body-lg text-graphite">
+                תנו ללקוחות לצעוד בתוך הנכס — מכל מקום, בכל שעה, מכל מכשיר.
+              </p>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/tour/test"
+                  className="inline-flex items-center gap-2 rounded-full bg-carbon px-6 py-3 text-body font-semibold text-paper transition-opacity hover:opacity-85"
+                >
+                  סיור לדוגמה
+                  <ArrowLeft size={18} strokeWidth={2.4} />
+                </Link>
+                <a
+                  href="#how"
+                  className="rounded-full border border-carbon px-6 py-3 text-body font-semibold text-carbon transition-colors hover:bg-chalk"
+                >
+                  איך זה עובד
+                </a>
+              </div>
+            </Reveal>
+          </div>
 
-          <Reveal delay={0.15}>
-            <ul className="space-y-2.5">
-              {TRUST.map((t) => (
-                <li key={t.label} className="flex items-center gap-2.5 text-ash">
-                  <t.icon size={18} className="text-graphite" />
-                  <span className="text-caption">{t.label}</span>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
+          {/* מוקאפ דשבורד */}
+          <HeroShowcase />
         </div>
+      </section>
 
-        {/* שני כרטיסים גדולים */}
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <Reveal delay={0.1}>
-            <BigCard
-              image="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-3.jpg"
-              title="סיור 360° אינטראקטיבי"
-              sub="צעדו בין החדרים, הסתובבו בכל זווית"
-              cta="התחילו סיור"
-              href="/tour/test"
-            />
-          </Reveal>
-          <Reveal delay={0.2}>
-            <BigCard
-              image="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-5.jpg"
-              title="שיתוף בלחיצה אחת"
-              sub="לינק ייחודי וקוד הטמעה לכל אתר"
-              cta="איך זה עובד"
-              href="#how"
-              tone="dark"
-            />
-          </Reveal>
-        </div>
-
-        {/* שורת קישורים דקה (סגנון Eden) */}
-        <Reveal delay={0.15}>
-          <div className="mt-5 grid gap-5 sm:grid-cols-3">
-            {ROWS.map((r) => (
+      {/* ===================== אלמנט הסיור היחיד ===================== */}
+      <section id="features" className="mx-auto max-w-[1200px] px-6 py-20">
+        <Reveal>
+          <div className="overflow-hidden rounded-lg border border-slate/15 bg-paper shadow-soft">
+            <div className="grid items-stretch gap-0 md:grid-cols-2">
+              {/* טקסט */}
+              <div className="flex flex-col justify-center p-8 sm:p-12">
+                <h2 className="font-display text-heading-sm font-extrabold text-carbon sm:text-heading">
+                  לא תמונה.
+                  <br />
+                  צעידה אמיתית בנכס.
+                </h2>
+                <p className="mt-5 max-w-md text-body-lg text-graphite">
+                  הלקוח עובר מנקודה לנקודה, מסתובב 360° בכל חדר, ומרגיש את החלל
+                  והאור — בדיוק כמו ביקור פיזי.
+                </p>
+                <div className="mt-8">
+                  <Link
+                    href="/tour/test"
+                    className="inline-flex items-center gap-2 rounded-full bg-carbon px-6 py-3 text-body font-semibold text-paper transition-opacity hover:opacity-85"
+                  >
+                    התחילו סיור
+                    <ArrowLeft size={18} strokeWidth={2.4} />
+                  </Link>
+                </div>
+              </div>
+              {/* תצוגה מקדימה (אלמנט סיור יחיד) */}
               <Link
-                key={r.title}
-                href="#features"
-                className="group flex items-center justify-between rounded-2xl border border-dove bg-pure-white px-5 py-4 transition-colors hover:bg-mist"
+                href="/tour/test"
+                className="group relative block min-h-[320px] bg-mist md:min-h-[460px]"
               >
-                <span className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mist text-ink transition-colors group-hover:bg-pure-white">
-                    <r.icon size={20} strokeWidth={2} />
-                  </span>
-                  <span>
-                    <span className="block text-caption font-semibold text-ink">
-                      {r.title}
-                    </span>
-                    <span className="block text-[13px] text-graphite">
-                      {r.hint}
-                    </span>
-                  </span>
-                </span>
-                <ChevronLeft
-                  size={18}
-                  className="text-graphite transition-transform group-hover:-translate-x-1"
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-3.jpg"
+                  alt="תצוגת סיור 360°"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
+                <span className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-paper px-5 py-2.5 text-caption font-semibold text-carbon shadow-card">
+                  <span className="h-2 w-2 rounded-full bg-signal" />
+                  סיור חי 360°
+                </span>
               </Link>
-            ))}
+            </div>
           </div>
         </Reveal>
       </section>
 
-      {/* ===================== SHOWCASE ===================== */}
-      <section id="features" className="mx-auto max-w-[1180px] px-6 py-20">
-        <div className="grid items-center gap-12 md:grid-cols-2">
-          <Reveal>
-            <div>
-              <h2 className="font-display text-heading-sm font-extrabold text-ink sm:text-heading">
-                לא תמונה.
-                <br />
-                צעידה אמיתית בנכס.
-              </h2>
-              <p className="mt-5 max-w-md text-body-lg text-ash">
-                הלקוח עובר מנקודה לנקודה, מסתובב 360° בכל חדר, ומרגיש את החלל
-                והאור — בדיוק כמו ביקור פיזי.
-              </p>
-              <div className="mt-8">
-                <Magnetic className="inline-block">
-                  <Link
-                    href="/tour/test"
-                    className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-3.5 text-body font-semibold text-pure-white transition-opacity hover:opacity-85"
-                  >
-                    נסו עכשיו
-                    <ArrowLeft size={18} strokeWidth={2.4} />
-                  </Link>
-                </Magnetic>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.15}>
-            <div className="group relative overflow-hidden rounded-3xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-1.jpg"
-                alt="תצוגת סיור 360°"
-                className="h-[420px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== STATS ===================== */}
-      <section id="how" className="mx-auto max-w-[1180px] px-6 py-10">
-        <div className="rounded-3xl bg-mist p-10 sm:p-16">
-          <div className="grid gap-10 text-center sm:grid-cols-3">
-            {[
-              { v: <CountUp to={2.7} decimals={1} suffix="×" />, l: 'יותר זמן צפייה' },
-              { v: <CountUp to={24} suffix="/7" />, l: 'פתוח לביקור' },
-              { v: <CountUp to={5} suffix=" דק׳" />, l: 'מהעלאה ללינק' },
-            ].map((s, i) => (
-              <Reveal key={i} delay={i * 0.12}>
-                <p className="font-display text-heading font-extrabold text-ink sm:text-heading-lg">
-                  {s.v}
-                </p>
-                <p className="mt-2 text-body text-ash">{s.l}</p>
-              </Reveal>
-            ))}
-          </div>
+      {/* ===================== שלושה צעדים ===================== */}
+      <section id="how" className="mx-auto max-w-[1200px] px-6 py-20">
+        <Reveal>
+          <h2 className="font-display text-heading-sm font-extrabold text-carbon sm:text-heading">
+            שלושה צעדים. זה הכל.
+          </h2>
+        </Reveal>
+        <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <Reveal key={s.n} delay={i * 0.12}>
+              <span className="font-display text-heading font-extrabold text-signal">
+                {s.n}
+              </span>
+              <h3 className="mt-3 text-subheading font-bold text-carbon">
+                {s.t}
+              </h3>
+              <p className="mt-2 text-body-lg text-graphite">{s.d}</p>
+            </Reveal>
+          ))}
         </div>
       </section>
 
       {/* ===================== CTA ===================== */}
-      <section id="tours" className="mx-auto max-w-[1180px] px-6 py-24 text-center">
+      <section id="tours" className="mx-auto max-w-[1200px] px-6 py-24">
         <Reveal>
-          <h2 className="mx-auto max-w-2xl font-display text-heading-sm font-extrabold text-ink sm:text-heading">
-            מוכנים לתת ללקוחות לצעוד פנימה?
-          </h2>
-          <div className="mt-9">
-            <Magnetic className="inline-block">
+          <div className="rounded-lg bg-carbon px-8 py-16 text-center sm:py-20">
+            <h2 className="mx-auto max-w-2xl font-display text-heading-sm font-extrabold text-paper sm:text-heading">
+              מוכנים לתת ללקוחות לצעוד פנימה?
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-body-lg text-paper/70">
+              התחילו מהסיור לדוגמה וראו איך זה מרגיש.
+            </p>
+            <div className="mt-9">
               <Link
                 href="/tour/test"
-                className="inline-flex items-center gap-2 rounded-full bg-ink px-8 py-4 text-body font-semibold text-pure-white transition-opacity hover:opacity-85"
+                className="inline-flex items-center gap-2 rounded-full bg-paper px-7 py-3.5 text-body font-semibold text-carbon transition-opacity hover:opacity-85"
               >
                 כניסה לסיור לדוגמה
                 <ArrowLeft size={18} strokeWidth={2.4} />
               </Link>
-            </Magnetic>
+            </div>
           </div>
         </Reveal>
       </section>
 
       {/* ===================== FOOTER ===================== */}
-      <footer className="border-t border-dove">
-        <div className="mx-auto flex max-w-[1180px] flex-col items-center justify-between gap-3 px-6 py-8 sm:flex-row">
-          <span className="text-[20px] font-extrabold text-ink">
-            tour<span className="text-graphite">360</span>
-          </span>
-          <p className="text-caption text-graphite">
-            © {new Date().getFullYear()} כל הזכויות שמורות
-          </p>
+      <footer className="border-t border-slate/20">
+        <div className="mx-auto grid max-w-[1200px] gap-8 px-6 py-14 sm:grid-cols-2">
+          <div>
+            <span className="text-[22px] font-extrabold tracking-tight text-carbon">
+              tour<span className="text-signal">.</span>360
+            </span>
+            <p className="mt-3 max-w-xs text-caption text-graphite">
+              פלטפורמת סיורים וירטואליים 360° לנדל&quot;ן.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="flex gap-6 text-caption font-medium text-graphite">
+              <a href="#features" className="hover:text-carbon">יכולות</a>
+              <a href="#how" className="hover:text-carbon">איך זה עובד</a>
+              <Link href="/tour/test" className="hover:text-carbon">סיור לדוגמה</Link>
+            </div>
+            <p className="text-caption text-slate">
+              © {new Date().getFullYear()} tour.360 — כל הזכויות שמורות
+            </p>
+          </div>
         </div>
       </footer>
     </main>
-  )
-}
-
-// ---------- כרטיס גדול עם תמונה וטקסט עליו ----------
-function BigCard({
-  image,
-  title,
-  sub,
-  cta,
-  href,
-  tone = 'light',
-}: {
-  image: string
-  title: string
-  sub: string
-  cta: string
-  href: string
-  tone?: 'light' | 'dark'
-}) {
-  return (
-    <Link
-      href={href}
-      className="group relative block h-[360px] overflow-hidden rounded-3xl sm:h-[440px]"
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={image}
-        alt={title}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      <div
-        className={`absolute inset-0 ${
-          tone === 'dark'
-            ? 'bg-gradient-to-t from-ink/80 via-ink/25 to-ink/10'
-            : 'bg-gradient-to-t from-ink/70 via-ink/15 to-transparent'
-        }`}
-      />
-      <div className="absolute inset-0 flex flex-col justify-between p-7">
-        <div>
-          <h3 className="text-subheading font-bold text-pure-white sm:text-heading-sm">
-            {title}
-          </h3>
-          <p className="mt-2 max-w-xs text-body text-pure-white/85">{sub}</p>
-        </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-pure-white px-5 py-2.5 text-caption font-semibold text-ink transition-transform group-hover:-translate-y-0.5">
-          {cta}
-          <ArrowLeft size={16} strokeWidth={2.4} />
-        </span>
-      </div>
-    </Link>
   )
 }
