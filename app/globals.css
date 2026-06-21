@@ -70,38 +70,5 @@
   }
 }
 
-/* ============================================================
-   חצי ניווט מותאמים אישית ל-Pannellum (.tour-hotspot)
-   כדור כהה בולט עם טבעת לבנה + תווית טקסט שצפה תמיד מעליו.
-   חשוב: לא לגעת ב-transform — Pannellum מעדכן אותו דינמית כדי
-   למקם את החץ בכדור ה-360°.
-   ============================================================ */
-.tour-hotspot {
-  height: 28px;
-  width: 28px;
-  border-radius: 9999px;
-  background: var(--color-ink);
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  transition: filter 0.15s ease;
-}
-.tour-hotspot:hover {
-  filter: brightness(1.2);
-}
-.tour-hotspot__label {
-  position: absolute;
-  display: inline-block;
-  background: #ffffff;
-  color: var(--color-ink);
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: var(--shadow-card);
-  /* התווית עצמה לחיצה — היא יעד הלחיצה הגדול והנוח (הקליק
-     מתגלגל לכדור שמטפל בניווט). זה מה שמתקן את "קשה לתפוס". */
-  cursor: pointer;
-}
+/* ה-Viewer של הסיור (Photo Sphere Viewer) מביא עיצוב משלו דרך
+   ה-CSS שמיובא בקומפוננטה TourViewer — אין צורך בעיצוב חצים כאן. */

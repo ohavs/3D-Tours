@@ -1,60 +1,79 @@
 // ============================================================
 // app/tour/[id]/page.tsx
-// דף הסיור. הכתובת היא /tour/<משהו> — למשל /tour/test
-// ה-[id] בשם התיקייה הוא "פרמטר דינמי": כל ערך שיבוא בכתובת
-// יתקבל כאן בתוך params.
+// דף הסיור. הכתובת /tour/<משהו> — למשל /tour/test.
 //
-// בשלב הזה (שלב 2) הנתונים "קשיחים" (hardcoded) — כתובים ידנית
-// בקוד. בשלב הבא נחבר את זה למסד הנתונים האמיתי.
+// בשלב הזה הנתונים "קשיחים" (hardcoded). זהו סט סיור מקושר אמיתי
+// (Photo Sphere Viewer demo) — 7 נקודות צילום של אותו מיקום, עם
+// קואורדינטות GPS כך שהחצים על הרצפה ממוקמים נכון וצועדים ביניהן.
+// בשלב הבא נחבר את הנתונים למסד הנתונים האמיתי.
 // ============================================================
 
 import Link from 'next/link'
-import PannellumViewer from '@/components/PannellumViewer'
-import type { ViewerScene, ViewerHotspot } from '@/lib/types'
+import TourViewer from '@/components/TourViewer'
+import type { TourNode } from '@/lib/types'
 
-// "טיול" במקום אחד קוהרנטי: סדרת נקודות צילום סמוכות של אותו מיקום
-// (סט הסיור הציבורי של Photo Sphere Viewer). במקום לדלג בין תמונות
-// זרות — צועדים קדימה ואחורה לאורך מסלול, עם חצים על הרצפה.
 const BASE = 'https://photo-sphere-viewer-data.netlify.app/assets/tour/'
-const POINT_COUNT = 6
 
-// בונים שרשרת: כל נקודה מחוברת לקודמת ולבאה אחריה.
-// חץ "קדימה" במרכז התצוגה (yaw 0) ונמוך לכיוון הרצפה (pitch -32),
-// חץ "אחורה" מאחור (yaw 180). targetYaw שומר על אותו כיוון תנועה.
-const TEST_SCENES: ViewerScene[] = Array.from(
-  { length: POINT_COUNT },
-  (_, i) => {
-    const n = i + 1
-    const hotSpots: ViewerHotspot[] = []
-    if (n < POINT_COUNT) {
-      hotSpots.push({
-        pitch: -32,
-        yaw: 0,
-        text: 'קדימה',
-        targetSceneId: `point-${n + 1}`,
-        targetYaw: 0,
-      })
-    }
-    if (n > 1) {
-      hotSpots.push({
-        pitch: -32,
-        yaw: 180,
-        text: 'אחורה',
-        targetSceneId: `point-${n - 1}`,
-        targetYaw: 180,
-      })
-    }
-    return {
-      id: `point-${n}`,
-      title: `נקודה ${n} מתוך ${POINT_COUNT}`,
-      panorama: `${BASE}key-biscayne-${n}.jpg`,
-      hotSpots,
-    }
+const TOUR_NODES: TourNode[] = [
+  {
+    id: '1',
+    panorama: `${BASE}key-biscayne-1.jpg`,
+    name: 'נקודה 1',
+    gps: [-80.156479, 25.666725, 3],
+    sphereCorrection: { pan: '33deg' },
+    links: [{ nodeId: '2' }],
   },
-)
+  {
+    id: '2',
+    panorama: `${BASE}key-biscayne-2.jpg`,
+    name: 'נקודה 2',
+    gps: [-80.156168, 25.666623, 3],
+    sphereCorrection: { pan: '42deg' },
+    links: [{ nodeId: '3' }, { nodeId: '1' }],
+  },
+  {
+    id: '3',
+    panorama: `${BASE}key-biscayne-3.jpg`,
+    name: 'נקודה 3',
+    gps: [-80.155932, 25.666498, 5],
+    sphereCorrection: { pan: '50deg' },
+    links: [{ nodeId: '4' }, { nodeId: '2' }, { nodeId: '5' }],
+  },
+  {
+    id: '4',
+    panorama: `${BASE}key-biscayne-4.jpg`,
+    name: 'נקודה 4',
+    gps: [-80.156089, 25.666357, 3],
+    sphereCorrection: { pan: '-78deg' },
+    links: [{ nodeId: '3' }, { nodeId: '5' }],
+  },
+  {
+    id: '5',
+    panorama: `${BASE}key-biscayne-5.jpg`,
+    name: 'נקודה 5',
+    gps: [-80.156292, 25.666446, 2],
+    sphereCorrection: { pan: '170deg' },
+    links: [{ nodeId: '6' }, { nodeId: '3' }, { nodeId: '4' }],
+  },
+  {
+    id: '6',
+    panorama: `${BASE}key-biscayne-6.jpg`,
+    name: 'נקודה 6',
+    gps: [-80.156465, 25.666496, 2],
+    sphereCorrection: { pan: '65deg' },
+    links: [{ nodeId: '5' }, { nodeId: '7' }],
+  },
+  {
+    id: '7',
+    panorama: `${BASE}key-biscayne-7.jpg`,
+    name: 'נקודה 7',
+    gps: [-80.15707, 25.6665, 3],
+    sphereCorrection: { pan: '110deg' },
+    links: [{ nodeId: '6' }],
+  },
+]
 
-// שימו לב: בגרסה החדשה של Next.js, params הוא "הבטחה" (Promise)
-// ולכן צריך await כדי לקרוא ממנו.
+// בגרסה החדשה של Next.js, params הוא Promise ולכן צריך await.
 export default async function TourPage({
   params,
 }: {
@@ -84,7 +103,7 @@ export default async function TourPage({
 
       {/* הViewer עצמו — תופס את כל שאר המסך */}
       <div className="relative min-h-0 flex-1">
-        <PannellumViewer scenes={TEST_SCENES} firstSceneId="point-1" />
+        <TourViewer nodes={TOUR_NODES} startNodeId="1" />
       </div>
     </main>
   )

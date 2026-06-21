@@ -62,3 +62,19 @@ export interface ViewerHotspot {
   targetYaw?: number
   targetPitch?: number
 }
+
+// --- Photo Sphere Viewer: צומת (נקודת צילום) בסיור מקושר ---
+// כל צומת היא תמונת 360° במיקום מסוים, עם קישורים לצמתים שכנים.
+// במצב GPS, החצים על הרצפה ממוקמים אוטומטית לפי הקואורדינטות,
+// כך שלוחצים על חץ "שמוביל לכיוון" ומרגישים שצועדים קדימה.
+export interface TourNode {
+  id: string
+  panorama: string // כתובת תמונת ה-360°
+  name?: string // שם הנקודה (מופיע ב-tooltip)
+  thumbnail?: string
+  // קואורדינטות [אורך, רוחב] ואופציונלי גובה — לצורך מיקום החצים
+  gps: [number, number] | [number, number, number]
+  // תיקון סיבוב התמונה כדי שתהיה מיושרת נכון (צפון אמיתי)
+  sphereCorrection?: { pan?: string; tilt?: string; roll?: string }
+  links: { nodeId: string }[] // לאילו צמתים אפשר לעבור מכאן
+}
