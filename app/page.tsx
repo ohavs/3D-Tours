@@ -1,238 +1,211 @@
 // ============================================================
 // app/page.tsx — דף הבית
-// בהשראת giraffe360: הרבה אוויר, כותרות ענק, אלמנטים גדולים
-// ומעוגלים, ויזואלים גדולים — בצבעים של מערכת העיצוב (Steep).
-// תנועה: כניסות בגלילה (Reveal), ריחוף (Float), הרמה ב-hover.
+// שפה נקייה ומודרנית, אקסנט ירוק, כרטיסים מעוגלים ואייקוני קו.
+// אנימציות מתקדמות: חשיפה בגלילה, parallax, hover-tilt, מספרים
+// מטפסים, וכפתורים מגנטיים.
 // ============================================================
 
 import Link from 'next/link'
-import { Reveal, Float } from '@/components/anim'
+import {
+  ArrowLeft,
+  Compass,
+  Share2,
+  BarChart3,
+  Camera,
+  MousePointerClick,
+  Sparkles,
+} from 'lucide-react'
+import { Reveal, Tilt, Magnetic, CountUp } from '@/components/anim'
+import HeroShowcase from '@/components/HeroShowcase'
+
+const FEATURES = [
+  {
+    icon: Compass,
+    title: 'ניווט בין חדרים',
+    desc: 'חצים על הרצפה שמובילים מחדר לחדר — תחושת צעידה אמיתית בנכס.',
+  },
+  {
+    icon: Share2,
+    title: 'לינק וקוד הטמעה',
+    desc: 'כל סיור מקבל כתובת ייחודית וקוד iframe מוכן לאתר הלקוח.',
+  },
+  {
+    icon: BarChart3,
+    title: 'אנליטיקס',
+    desc: 'מי צפה, כמה זמן, ובאילו חדרים — נתונים שעוזרים לסגור עסקה.',
+  },
+]
+
+const STEPS = [
+  { icon: Camera, n: '01', t: 'מצלמים', d: 'תמונת 360° לכל חדר.' },
+  { icon: MousePointerClick, n: '02', t: 'מחברים', d: 'מסמנים חצי ניווט בין החדרים.' },
+  { icon: Share2, n: '03', t: 'משתפים', d: 'שולחים לינק או מטמיעים באתר.' },
+]
 
 export default function HomePage() {
   return (
     <main className="flex-1">
       {/* ======================= HERO ======================= */}
       <section className="relative overflow-hidden">
+        {/* זוהר ירוק עדין ברקע */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
           style={{
             background:
-              'radial-gradient(55% 45% at 50% 18%, #fbe1d1 0%, rgba(251,225,209,0) 72%)',
+              'radial-gradient(50% 60% at 50% 0%, rgba(25,200,83,0.14) 0%, rgba(25,200,83,0) 70%)',
           }}
         />
-        <div className="relative mx-auto max-w-[1200px] px-6 pb-24 pt-24 text-center sm:pt-32">
+        <div className="relative mx-auto max-w-[1200px] px-6 pb-20 pt-16 text-center sm:pt-24">
           <Reveal>
-            <span className="inline-block rounded-full border border-dove/60 bg-pure-white px-4 py-1.5 text-caption font-medium text-ash">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-dove bg-pure-white px-3.5 py-1.5 text-caption font-medium text-ash">
+              <Sparkles size={15} className="text-green" />
               סיורי 360° לנדל&quot;ן
             </span>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mx-auto mt-8 max-w-4xl font-display text-heading font-bold leading-[1.05] text-ink sm:text-heading-lg">
-              כל נכס. בכל מקום.
-              <br />
-              <span className="text-rust">בתוך הסיור.</span>
+            <h1 className="mx-auto mt-7 max-w-3xl font-display text-heading font-extrabold text-ink sm:text-heading-lg">
+              הנכס שלך, פתוח לביקור{' '}
+              <span className="text-green">מכל מקום</span>
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
-            <p className="mx-auto mt-7 max-w-2xl text-body-lg text-ash sm:text-subheading">
-              פלטפורמת סיורים וירטואליים 360° שמכניסה את הלקוחות פנימה — לצעוד
-              בחדרים, להרגיש את החלל, ולהתאהב עוד לפני הביקור.
+            <p className="mx-auto mt-6 max-w-xl text-body-lg text-ash">
+              פלטפורמת סיורים וירטואליים שמכניסה את הלקוחות פנימה — לצעוד בחדרים
+              ולהרגיש את החלל עוד לפני שדרכו כף רגל בדלת.
             </p>
           </Reveal>
           <Reveal delay={0.24}>
-            <div className="mt-10 flex items-center justify-center gap-5">
+            <div className="mt-9 flex items-center justify-center gap-4">
+              <Magnetic>
+                <Link
+                  href="/tour/test"
+                  className="flex items-center gap-2 rounded-full bg-green px-7 py-3.5 text-body font-semibold text-pure-white shadow-green transition-colors hover:bg-green-strong"
+                >
+                  התחילו סיור לדוגמה
+                  <ArrowLeft size={18} strokeWidth={2.4} />
+                </Link>
+              </Magnetic>
               <Link
-                href="/tour/test"
-                className="rounded-full bg-ink px-8 py-4 text-body font-medium text-pure-white transition hover:opacity-90 active:scale-95"
+                href="#how"
+                className="rounded-full border border-dove bg-pure-white px-7 py-3.5 text-body font-semibold text-ink transition-colors hover:bg-mist"
               >
-                התחילו סיור לדוגמה
-              </Link>
-              <Link
-                href="#features"
-                className="text-body font-medium text-ink transition hover:opacity-70"
-              >
-                גלו עוד ←
+                איך זה עובד
               </Link>
             </div>
           </Reveal>
 
-          {/* ויזואל ענק — תצוגת המוצר */}
-          <Reveal delay={0.2} y={48}>
-            <Float className="mx-auto mt-20 max-w-5xl">
-              <div className="rounded-3xl bg-pure-white p-3 shadow-card sm:p-4">
-                <div className="grid gap-3 sm:grid-cols-[240px_1fr]">
-                  <div className="rounded-2xl bg-fog p-5">
-                    <p className="text-caption text-graphite">נקודות בסיור</p>
-                    <ul className="mt-4 space-y-2 text-body text-ink">
-                      {['כניסה', 'סלון', 'מטבח', 'חדר שינה', 'מרפסת'].map(
-                        (r, i) => (
-                          <li
-                            key={r}
-                            className={`flex items-center justify-between rounded-xl px-3 py-2.5 ${
-                              i === 1 ? 'bg-pure-white shadow-card' : ''
-                            }`}
-                          >
-                            <span>{r}</span>
-                            <span className="text-graphite">›</span>
-                          </li>
-                        ),
-                      )}
-                    </ul>
-                  </div>
-                  <div className="relative overflow-hidden rounded-2xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-3.jpg"
-                      alt="תצוגת סיור 360°"
-                      className="h-72 w-full object-cover sm:h-[26rem]"
-                    />
-                    <span className="absolute bottom-8 right-1/2 flex translate-x-1/2 items-center gap-2 rounded-full bg-pure-white px-5 py-2.5 text-body font-semibold text-ink shadow-card">
-                      <span className="h-2.5 w-2.5 rounded-full bg-rust" />
-                      גררו לסיבוב · לחצו לצעוד
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Float>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ===================== TRUST STRIP ===================== */}
-      <section className="border-y border-dove/30 bg-fog">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-x-12 gap-y-3 px-6 py-7 text-caption font-medium text-graphite">
-          <span>סוכני נדל&quot;ן</span>
-          <span>·</span>
-          <span>משרדי תיווך</span>
-          <span>·</span>
-          <span>בעלי נכסים</span>
-          <span>·</span>
-          <span>חברות יזמות</span>
-        </div>
-      </section>
-
-      {/* ===================== FEATURE 1 ===================== */}
-      <section id="features" className="bg-pure-white">
-        <div className="mx-auto max-w-[1200px] px-6 py-24">
-          <div className="grid items-center gap-14 md:grid-cols-2">
-            <Reveal>
-              <div>
-                <p className="text-caption font-semibold text-rust">
-                  חוויית הצפייה
-                </p>
-                <h2 className="mt-4 font-display text-heading-sm font-bold leading-[1.1] text-ink sm:text-heading">
-                  לא תמונה. צעידה אמיתית בתוך הנכס.
-                </h2>
-                <p className="mt-5 text-body-lg text-ash">
-                  הלקוח עובר מנקודה לנקודה עם חצים על הרצפה, מסתובב 360° בכל
-                  חדר, ומרגיש את הפרופורציות והאור — בדיוק כמו ביקור פיזי.
-                </p>
-                <Link
-                  href="/tour/test"
-                  className="mt-8 inline-block rounded-full bg-ink px-7 py-3.5 text-body font-medium text-pure-white transition hover:opacity-90 active:scale-95"
-                >
-                  נסו עכשיו
-                </Link>
-              </div>
-            </Reveal>
-            <Reveal delay={0.12} y={36}>
-              <div className="overflow-hidden rounded-3xl shadow-card transition-transform duration-500 hover:-translate-y-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-5.jpg"
-                  alt="תצוגת 360° של מרחב"
-                  className="h-[28rem] w-full object-cover"
-                />
-              </div>
-            </Reveal>
+          {/* מוקאפ המוצר */}
+          <div className="mt-16">
+            <HeroShowcase />
           </div>
         </div>
       </section>
 
-      {/* ===================== STATS BAND ===================== */}
-      <section className="bg-apricot-wash">
-        <div className="mx-auto grid max-w-[1200px] gap-10 px-6 py-20 text-center sm:grid-cols-3">
-          {[
-            { k: '2.7×', v: 'יותר זמן צפייה מול תמונות רגילות' },
-            { k: '24/7', v: 'הנכס פתוח לביקור מכל מקום' },
-            { k: '5 דק׳', v: 'מהעלאה ללינק מוכן לשיתוף' },
-          ].map((s, i) => (
-            <Reveal key={s.k} delay={i * 0.12}>
-              <p className="font-display text-heading font-bold text-ink sm:text-heading-lg">
-                {s.k}
-              </p>
-              <p className="mt-3 text-body text-rust">{s.v}</p>
+      {/* ===================== FEATURES ===================== */}
+      <section id="features" className="mx-auto max-w-[1200px] px-6 py-24">
+        <Reveal>
+          <h2 className="max-w-2xl font-display text-heading-sm font-extrabold text-ink sm:text-heading">
+            כל מה שצריך כדי שנכס ימכור את עצמו
+          </h2>
+        </Reveal>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.title} delay={i * 0.1}>
+              <Tilt className="h-full">
+                <div className="group h-full rounded-3xl border border-dove/70 bg-pure-white p-7 shadow-soft transition-shadow hover:shadow-card">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-soft text-green transition-transform group-hover:scale-110">
+                    <f.icon size={24} strokeWidth={2.2} />
+                  </span>
+                  <h3 className="mt-5 text-subheading font-bold text-ink">
+                    {f.title}
+                  </h3>
+                  <p className="mt-2 text-body text-ash">{f.desc}</p>
+                </div>
+              </Tilt>
             </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ===================== FEATURE 2 ===================== */}
-      <section className="bg-pure-white">
+      {/* ===================== HOW IT WORKS ===================== */}
+      <section id="how" className="bg-pure-white">
         <div className="mx-auto max-w-[1200px] px-6 py-24">
-          <div className="grid items-center gap-14 md:grid-cols-2">
-            <Reveal delay={0.12} y={36} className="md:order-2">
-              <div className="rounded-3xl bg-sky-wash p-8 shadow-card sm:p-10">
-                <p className="text-caption text-graphite">לינק לשיתוף</p>
-                <p
-                  dir="ltr"
-                  className="mt-3 truncate rounded-2xl bg-pure-white px-5 py-4 font-mono text-body text-ink shadow-card"
-                >
-                  yourdomain.com/tour/abc123
-                </p>
-                <p className="mt-5 text-caption text-graphite">קוד הטמעה</p>
-                <p
-                  dir="ltr"
-                  className="mt-3 truncate rounded-2xl bg-pure-white px-5 py-4 font-mono text-caption text-ash shadow-card"
-                >
-                  &lt;iframe src=&quot;.../tour/abc123&quot;&gt;
-                </p>
-              </div>
-            </Reveal>
-            <Reveal className="md:order-1">
-              <div>
-                <p className="text-caption font-semibold text-rust">שיתוף</p>
-                <h2 className="mt-4 font-display text-heading-sm font-bold leading-[1.1] text-ink sm:text-heading">
-                  לינק אחד. וקוד הטמעה לכל אתר.
-                </h2>
-                <p className="mt-5 text-body-lg text-ash">
-                  כל סיור מקבל כתובת ייחודית וקוד iframe מוכן. משבצים באתר הלקוח,
-                  שולחים בוואטסאפ, מצרפים למודעה — והנכס חי בכל מקום.
-                </p>
-              </div>
-            </Reveal>
+          <Reveal>
+            <h2 className="font-display text-heading-sm font-extrabold text-ink sm:text-heading">
+              שלושה צעדים. זה הכל.
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <Reveal key={s.n} delay={i * 0.12}>
+                <div className="relative h-full rounded-3xl border border-dove/70 bg-canvas p-7">
+                  <span className="absolute left-7 top-7 text-caption font-bold text-graphite">
+                    {s.n}
+                  </span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink text-pure-white">
+                    <s.icon size={22} strokeWidth={2.2} />
+                  </span>
+                  <h3 className="mt-5 text-subheading font-bold text-ink">
+                    {s.t}
+                  </h3>
+                  <p className="mt-2 text-body text-ash">{s.d}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===================== CLOSING CTA ===================== */}
-      <section className="bg-fog">
-        <div className="mx-auto max-w-[1200px] px-6 py-28 text-center">
-          <Reveal>
-            <h2 className="mx-auto max-w-3xl font-display text-heading font-bold leading-[1.1] text-ink sm:text-heading-lg">
-              מוכנים לתת ללקוחות לצעוד פנימה?
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-body-lg text-ash">
-              התחילו מהסיור לדוגמה וראו איך זה מרגיש.
-            </p>
-            <div className="mt-10">
-              <Link
-                href="/tour/test"
-                className="inline-block rounded-full bg-ink px-8 py-4 text-body font-medium text-pure-white transition hover:opacity-90 active:scale-95"
-              >
-                כניסה לסיור לדוגמה
-              </Link>
-            </div>
-          </Reveal>
+      {/* ===================== STATS BAND ===================== */}
+      <section className="mx-auto max-w-[1200px] px-6 py-8">
+        <div className="overflow-hidden rounded-3xl bg-ink p-10 sm:p-14">
+          <div className="grid gap-10 text-center sm:grid-cols-3">
+            {[
+              { v: <CountUp to={2.7} decimals={1} suffix="×" />, l: 'יותר זמן צפייה מתמונות רגילות' },
+              { v: <CountUp to={24} suffix="/7" />, l: 'הנכס פתוח לביקור, תמיד' },
+              { v: <CountUp to={5} suffix=" דק׳" />, l: 'מהעלאה ללינק מוכן' },
+            ].map((s, i) => (
+              <Reveal key={i} delay={i * 0.12}>
+                <p className="font-display text-heading font-extrabold text-green sm:text-heading-lg">
+                  {s.v}
+                </p>
+                <p className="mt-2 text-body text-pure-white/70">{s.l}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ====================== FOOTER ===================== */}
-      <footer className="border-t border-dove/40 bg-pure-white">
-        <div className="mx-auto max-w-[1200px] px-6 py-10">
+      {/* ===================== CTA ===================== */}
+      <section className="mx-auto max-w-[1200px] px-6 py-24 text-center">
+        <Reveal>
+          <h2 className="mx-auto max-w-2xl font-display text-heading-sm font-extrabold text-ink sm:text-heading">
+            מוכנים לתת ללקוחות לצעוד פנימה?
+          </h2>
+          <div className="mt-9">
+            <Magnetic className="inline-block">
+              <Link
+                href="/tour/test"
+                className="inline-flex items-center gap-2 rounded-full bg-green px-8 py-4 text-body font-semibold text-pure-white shadow-green transition-colors hover:bg-green-strong"
+              >
+                כניסה לסיור לדוגמה
+                <ArrowLeft size={18} strokeWidth={2.4} />
+              </Link>
+            </Magnetic>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ===================== FOOTER ===================== */}
+      <footer className="border-t border-dove/60 bg-pure-white">
+        <div className="mx-auto flex max-w-[1200px] flex-col items-center justify-between gap-3 px-6 py-8 sm:flex-row">
+          <div className="flex items-center gap-2 text-ash">
+            <Compass size={18} className="text-green" />
+            <span className="text-caption font-semibold text-ink">סיורים 360°</span>
+          </div>
           <p className="text-caption text-graphite">
-            © {new Date().getFullYear()} סיורים וירטואליים 360°
+            © {new Date().getFullYear()} כל הזכויות שמורות
           </p>
         </div>
       </footer>

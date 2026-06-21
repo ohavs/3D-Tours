@@ -1,74 +1,74 @@
 @import "tailwindcss";
 
 /* ============================================================
-   מערכת העיצוב — "Steep"
-   קנבס לבן נקי, אפור חמים, אקסנט חלודה-אפרסק בודד, כרטיסים
-   מעוגלים גדולים וצל "חתימה" עדין בן 3 שכבות.
-   כל token הופך אוטומטית ל-utility של Tailwind:
-   --color-ink -> text-ink / bg-ink ; --shadow-card -> shadow-card
-   --text-heading-lg -> text-heading-lg (כולל גובה שורה ומרווח)
+   מערכת העיצוב — נקייה ומודרנית, אקסנט ירוק חי
+   (בהשראת הרפרנס: כרטיסים לבנים מעוגלים, מסגרות עדינות, פילים,
+   אייקוני קו, ואלמנטים "דשבורדיים").
+   כל token הופך אוטומטית ל-utility:  --color-green -> bg-green/text-green
+   --text-heading -> text-heading (כולל גובה שורה ומרווח אותיות)
    ============================================================ */
 @theme {
   /* --- צבעים --- */
-  --color-ink: #17191c; /* טקסט ראשי + כפתור פעולה כהה */
-  --color-pure-white: #ffffff; /* קנבס וכרטיסים */
-  --color-fog: #f7f7f8; /* רקע מקטעים משני */
-  --color-ash: #4c4c4c; /* טקסט גוף מושתק */
-  --color-graphite: #777b86; /* טקסט שלישוני, אייקונים */
-  --color-dove: #a3a6af; /* מסגרות hairline */
-  --color-slate: #8b8c8d;
-  --color-rust: #5d2a1a; /* אקסנט חם בודד (בשימוש מצומצם) */
-  --color-apricot-wash: #fbe1d1; /* רקע כרטיס חם / זוהר ה-hero */
-  --color-sky-wash: #d3e3fc; /* רקע כרטיס קריר */
+  --color-ink: #0c0d0d; /* טקסט ראשי + מצעים כהים */
+  --color-pure-white: #ffffff; /* כרטיסים */
+  --color-canvas: #f6f7f9; /* רקע הדף */
+  --color-mist: #edecf1; /* מצע מושתק / chips */
+  --color-green: #19c853; /* האקסנט החי */
+  --color-green-strong: #14a544; /* ירוק כהה ל-hover */
+  --color-green-soft: #e7f8ee; /* רקע תגיות/אייקונים ירוקים */
+  --color-ash: #565a61; /* טקסט משני */
+  --color-graphite: #8a9099; /* טקסט שלישוני / אייקונים */
+  --color-dove: #d9dbe0; /* מסגרות hairline */
 
-  /* --- פונטים (Assistant לכל הטקסט, תומך עברית) --- */
-  --font-sans: var(--font-assistant), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-assistant), ui-sans-serif, system-ui, sans-serif;
+  /* --- פונט: Heebo (וייב Google Sans, תומך עברית) --- */
+  --font-sans: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
 
-  /* --- סולם טיפוגרפי (גודל + גובה שורה + מרווח אותיות) --- */
+  /* --- סולם טיפוגרפי --- */
   --text-caption: 14px;
   --text-caption--line-height: 1.5;
-  --text-caption--letter-spacing: -0.13px;
+  --text-caption--letter-spacing: -0.1px;
   --text-body: 16px;
-  --text-body--line-height: 1.38;
-  --text-body--letter-spacing: -0.14px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.1px;
   --text-body-lg: 18px;
-  --text-body-lg--line-height: 1.35;
-  --text-body-lg--letter-spacing: -0.16px;
+  --text-body-lg--line-height: 1.5;
+  --text-body-lg--letter-spacing: -0.15px;
   --text-subheading: 22px;
-  --text-subheading--line-height: 1.25;
-  --text-subheading--letter-spacing: -0.2px;
-  --text-heading-sm: 26px;
-  --text-heading-sm--line-height: 1.18;
-  --text-heading-sm--letter-spacing: -0.23px;
-  --text-heading: 44px;
+  --text-subheading--line-height: 1.3;
+  --text-subheading--letter-spacing: -0.3px;
+  --text-heading-sm: 28px;
+  --text-heading-sm--line-height: 1.2;
+  --text-heading-sm--letter-spacing: -0.5px;
+  --text-heading: 40px;
   --text-heading--line-height: 1.1;
-  --text-heading--letter-spacing: -0.66px;
-  --text-heading-lg: 64px;
-  --text-heading-lg--line-height: 1.1;
-  --text-heading-lg--letter-spacing: -1.6px;
-  --text-display: 90px;
-  --text-display--line-height: 1.1;
-  --text-display--letter-spacing: -2.25px;
+  --text-heading--letter-spacing: -1px;
+  --text-heading-lg: 56px;
+  --text-heading-lg--line-height: 1.05;
+  --text-heading-lg--letter-spacing: -1.8px;
+  --text-display: 72px;
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -2.5px;
 
-  /* --- צל החתימה (3 שכבות) --- */
+  /* --- צללים רכים --- */
   --shadow-card:
-    rgba(4, 23, 43, 0.05) 0px 0px 0px 1px,
-    rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-    rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+    0 1px 2px rgba(12, 13, 13, 0.04), 0 10px 30px rgba(12, 13, 13, 0.06);
+  --shadow-soft: 0 1px 2px rgba(12, 13, 13, 0.05), 0 4px 14px rgba(12, 13, 13, 0.05);
+  --shadow-green: 0 8px 24px rgba(25, 200, 83, 0.28);
 }
 
-/* --- בסיס: קנבס לבן, טקסט דיו, פונט Assistant --- */
+/* --- בסיס --- */
 @layer base {
+  html {
+    /* Lenis (smooth scroll) שולט בגלילה — מבטלים את ה-scroll-behavior המובנה */
+    scroll-behavior: auto;
+  }
   body {
-    background-color: var(--color-pure-white);
+    background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.38;
-    letter-spacing: -0.14px;
+    line-height: 1.5;
+    letter-spacing: -0.1px;
   }
 }
-
-/* ה-Viewer של הסיור (Photo Sphere Viewer) מביא עיצוב משלו דרך
-   ה-CSS שמיובא בקומפוננטה TourViewer — אין צורך בעיצוב חצים כאן. */

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Assistant } from "next/font/google";
+import { Heebo } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
+import SmoothScroll from "@/components/SmoothScroll";
 
-// פונט יחיד לכל הטקסט — Assistant (sans עברי נקי)
-const assistant = Assistant({
-  variable: "--font-assistant",
+// פונט יחיד — Heebo (וייב Google Sans, תמיכה מלאה בעברית)
+const heebo = Heebo({
+  variable: "--font-heebo",
   subsets: ["latin", "hebrew"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -21,10 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
+    <html lang="he" dir="rtl" className={`${heebo.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <NavBar />
-        {children}
+        <SmoothScroll>
+          <NavBar />
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );
