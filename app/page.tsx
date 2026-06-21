@@ -71,9 +71,9 @@ export default function HomePage() {
           <Reveal delay={0.15}>
             <Link
               href="/tour/test"
-              className="group block overflow-hidden rounded-lg border border-slate/15 bg-paper p-2.5 shadow-card"
+              className="group block overflow-hidden rounded-3xl border border-slate/15 bg-paper p-2.5 shadow-card"
             >
-              <div className="relative overflow-hidden rounded-md bg-mist">
+              <div className="relative overflow-hidden rounded-2xl bg-mist">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-3.jpg"
@@ -181,7 +181,7 @@ export default function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={0.12}>
-            <div className="rounded-lg border border-slate/15 bg-paper p-6 shadow-soft">
+            <div className="rounded-2xl border border-slate/15 bg-paper p-6 shadow-soft">
               <span className="text-caption font-medium text-graphite">קוד הטמעה</span>
               <pre
                 dir="ltr"
@@ -244,40 +244,46 @@ export default function HomePage() {
 
       {/* ===================== צור קשר ===================== */}
       <section id="contact" className="mx-auto max-w-[1200px] px-6 pb-24">
-        <div className="grid items-start gap-12 md:grid-cols-2">
-          <Reveal>
-            <div>
-              <h2 className="font-display text-heading-sm font-extrabold text-carbon sm:text-heading">
-                יש לכם נכס?
-                <br />
-                בואו נדבר.
-              </h2>
-              <p className="mt-5 max-w-md text-body-lg text-graphite">
-                מתאמים צילום, ואני דואג לכל השאר — עד סיור מוכן לשיתוף.
-              </p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <a
-                  href={`https://wa.me/${WHATSAPP}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-carbon px-6 py-3 text-body font-semibold text-paper transition-opacity hover:opacity-85"
-                >
-                  <MessageCircle size={18} strokeWidth={2.2} />
-                  וואטסאפ
-                </a>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="rounded-full border border-carbon px-6 py-3 text-body font-semibold text-carbon transition-colors hover:bg-chalk"
-                >
-                  אימייל
-                </a>
+        <Reveal>
+          <div className="overflow-hidden rounded-3xl border border-slate/15 bg-paper shadow-card">
+            <div className="grid md:grid-cols-2">
+              {/* פאנל כהה */}
+              <div className="flex flex-col justify-between gap-10 bg-carbon p-8 sm:p-12">
+                <div>
+                  <h2 className="font-display text-heading-sm font-extrabold text-paper sm:text-heading">
+                    יש לכם נכס?
+                    <br />
+                    בואו נדבר.
+                  </h2>
+                  <p className="mt-5 max-w-sm text-body-lg text-paper/70">
+                    מתאמים צילום, ואני דואג לכל השאר — עד סיור מוכן לשיתוף.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={`https://wa.me/${WHATSAPP}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-paper px-6 py-3 text-body font-semibold text-carbon transition-opacity hover:opacity-85"
+                  >
+                    <MessageCircle size={18} strokeWidth={2.2} />
+                    וואטסאפ
+                  </a>
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="rounded-full border border-paper/30 px-6 py-3 text-body font-semibold text-paper transition-colors hover:bg-paper/10"
+                  >
+                    אימייל
+                  </a>
+                </div>
+              </div>
+              {/* פאנל הטופס */}
+              <div className="p-8 sm:p-12">
+                <ContactForm />
               </div>
             </div>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <ContactForm />
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* ===================== FOOTER ===================== */}

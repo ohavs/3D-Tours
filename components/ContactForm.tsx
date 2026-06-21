@@ -39,7 +39,7 @@ export default function ContactForm() {
 
   if (status === 'success') {
     return (
-      <div className="rounded-lg border border-slate/15 bg-paper p-8 text-center shadow-soft">
+      <div className="flex h-full flex-col items-center justify-center py-8 text-center">
         <p className="font-display text-subheading font-extrabold text-carbon">
           קיבלתי! אחזור אליך בהקדם 🎬
         </p>
@@ -49,17 +49,14 @@ export default function ContactForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-lg border border-slate/15 bg-paper p-6 shadow-soft sm:p-8"
-    >
+    <form onSubmit={onSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="text-caption font-medium text-graphite">שם</span>
           <input
             name="name"
             required
-            className="mt-1.5 w-full rounded-lg border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
+            className="mt-1.5 w-full rounded-xl border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
             placeholder="השם שלך"
           />
         </label>
@@ -69,7 +66,7 @@ export default function ContactForm() {
             name="phone"
             inputMode="tel"
             dir="ltr"
-            className="mt-1.5 w-full rounded-lg border border-slate/25 bg-fog px-4 py-3 text-right text-body text-carbon outline-none transition-colors focus:border-carbon"
+            className="mt-1.5 w-full rounded-xl border border-slate/25 bg-fog px-4 py-3 text-right text-body text-carbon outline-none transition-colors focus:border-carbon"
             placeholder="050-0000000"
           />
         </label>
@@ -79,7 +76,7 @@ export default function ContactForm() {
         <textarea
           name="message"
           rows={4}
-          className="mt-1.5 w-full resize-none rounded-lg border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
+          className="mt-1.5 w-full resize-none rounded-xl border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
           placeholder="כתובת, סוג הנכס, וכל פרט שיעזור לי להתכונן"
         />
       </label>

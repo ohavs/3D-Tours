@@ -2,8 +2,8 @@
 
 // ============================================================
 // components/SmoothScroll.tsx
-// גלילה חלקה לכל האתר (Lenis), בלולאת requestAnimationFrame
-// סטנדרטית — הדרך האמינה ביותר גם בדסקטופ.
+// גלילה חלקה לכל האתר (Lenis), בלולאת requestAnimationFrame.
+// lerp נמוך = "החלקה כמו חמאה" (glide רך עם מומנטום).
 // ============================================================
 
 import { useEffect } from 'react'
@@ -15,15 +15,10 @@ export default function SmoothScroll({
   children: React.ReactNode
 }) {
   useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-    if (prefersReduced) return
-
     const lenis = new Lenis({
-      lerp: 0.09, // האטה רציפה וטבעית (לא "דביק")
+      lerp: 0.075, // ככל שנמוך יותר — הגלילה רכה וזורמת יותר
+      wheelMultiplier: 1.1,
       smoothWheel: true,
-      wheelMultiplier: 1,
     })
 
     let rafId = 0
