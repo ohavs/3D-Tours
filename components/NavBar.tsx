@@ -1,58 +1,63 @@
 'use client'
 
 // ============================================================
-// components/NavBar.tsx
-// פס ניווט עליון נקי ומודרני: רקע בהיר עם טשטוש, מסגרת דקה,
-// לוגו עם chip ירוק, קישורים, וכפתור פעולה ירוק (מגנטי).
-// מוסתר בדפי הסיור (/tour/...) שבהם ה-Viewer במסך מלא.
+// components/NavBar.tsx — נאבר נקי בהשראת Eden:
+// לוגו, קישורים במרכז, ושני כפתורי-פיל (כהה + מתאר).
+// מוסתר בדפי הסיור (/tour/...).
 // ============================================================
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Aperture, ArrowLeft } from 'lucide-react'
-import { Magnetic } from '@/components/anim'
+
+const LINKS = [
+  { href: '#features', label: 'יכולות' },
+  { href: '#how', label: 'איך זה עובד' },
+  { href: '#tours', label: 'דוגמאות' },
+]
 
 export default function NavBar() {
   const pathname = usePathname()
   if (pathname?.startsWith('/tour/')) return null
 
   return (
-    <header className="sticky top-0 z-50 border-b border-dove/60 bg-canvas/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+    <header className="sticky top-0 z-50 border-b border-dove/70 bg-canvas/85 backdrop-blur-md">
+      <div className="mx-auto flex h-[72px] max-w-[1180px] items-center justify-between px-6">
         {/* לוגו */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-green text-pure-white">
-            <Aperture size={18} strokeWidth={2.2} />
-          </span>
-          <span className="text-body font-bold text-ink">סיורים 360°</span>
+        <Link
+          href="/"
+          className="text-[22px] font-extrabold tracking-tight text-ink"
+        >
+          tour<span className="text-graphite">360</span>
         </Link>
 
-        {/* קישורים */}
-        <nav className="hidden items-center gap-7 md:flex">
-          <Link
-            href="#how"
-            className="text-caption font-medium text-ash transition-colors hover:text-ink"
-          >
-            איך זה עובד
-          </Link>
-          <Link
-            href="#features"
-            className="text-caption font-medium text-ash transition-colors hover:text-ink"
-          >
-            יכולות
-          </Link>
+        {/* קישורים במרכז */}
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="text-caption font-medium text-ash transition-colors hover:text-ink"
+            >
+              {l.label}
+            </Link>
+          ))}
         </nav>
 
-        {/* כפתור פעולה מגנטי */}
-        <Magnetic>
+        {/* כפתורים */}
+        <div className="flex items-center gap-2.5">
           <Link
             href="/tour/test"
-            className="flex items-center gap-1.5 rounded-full bg-green px-5 py-2.5 text-caption font-semibold text-pure-white shadow-green transition-colors hover:bg-green-strong"
+            className="rounded-full bg-ink px-5 py-2.5 text-caption font-semibold text-pure-white transition-opacity hover:opacity-85"
           >
             סיור לדוגמה
-            <ArrowLeft size={16} strokeWidth={2.4} />
           </Link>
-        </Magnetic>
+          <Link
+            href="/admin"
+            className="rounded-full border border-dove px-5 py-2.5 text-caption font-semibold text-ink transition-colors hover:bg-mist"
+          >
+            כניסה
+          </Link>
+        </div>
       </div>
     </header>
   )

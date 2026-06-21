@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${heebo.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
+    <html lang="he" dir="rtl" className={`${heebo.variable} antialiased`}>
+      <body className="flex flex-col">
         <SmoothScroll>
           <NavBar />
           {children}

@@ -1,26 +1,27 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 /* ============================================================
-   מערכת העיצוב — נקייה ומודרנית, אקסנט ירוק חי
-   (בהשראת הרפרנס: כרטיסים לבנים מעוגלים, מסגרות עדינות, פילים,
-   אייקוני קו, ואלמנטים "דשבורדיים").
-   כל token הופך אוטומטית ל-utility:  --color-green -> bg-green/text-green
-   --text-heading -> text-heading (כולל גובה שורה ומרווח אותיות)
+   מערכת עיצוב — ניטרלית ונקייה (בהשראת Eden):
+   קנבס לבן, טקסט כמעט-שחור, אפורים עדינים, וכמה גוונים רכים
+   לכרטיסים הגדולים. אלמנטים גדולים ומעוגלים, הרבה אוויר.
    ============================================================ */
 @theme {
-  /* --- צבעים --- */
-  --color-ink: #0c0d0d; /* טקסט ראשי + מצעים כהים */
-  --color-pure-white: #ffffff; /* כרטיסים */
-  --color-canvas: #f6f7f9; /* רקע הדף */
-  --color-mist: #edecf1; /* מצע מושתק / chips */
-  --color-green: #19c853; /* האקסנט החי */
-  --color-green-strong: #14a544; /* ירוק כהה ל-hover */
-  --color-green-soft: #e7f8ee; /* רקע תגיות/אייקונים ירוקים */
-  --color-ash: #565a61; /* טקסט משני */
-  --color-graphite: #8a9099; /* טקסט שלישוני / אייקונים */
-  --color-dove: #d9dbe0; /* מסגרות hairline */
+  /* --- צבעים ניטרליים --- */
+  --color-ink: #161513; /* טקסט ראשי + כפתורים כהים */
+  --color-pure-white: #ffffff;
+  --color-canvas: #ffffff; /* רקע הדף */
+  --color-mist: #f4f3f0; /* מצע בהיר עדין */
+  --color-dove: #e5e3de; /* מסגרות hairline */
+  --color-ash: #57544f; /* טקסט משני */
+  --color-graphite: #8c887f; /* טקסט שלישוני */
 
-  /* --- פונט: Heebo (וייב Google Sans, תומך עברית) --- */
+  /* --- גוונים רכים לכרטיסים הגדולים --- */
+  --color-blush: #e9ddd1; /* חמים */
+  --color-sky: #dde6ec; /* קריר */
+  --color-sand: #efe9e1; /* חולי */
+
+  /* --- פונט: Heebo (תומך עברית) --- */
   --font-sans: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
 
@@ -29,46 +30,39 @@
   --text-caption--line-height: 1.5;
   --text-caption--letter-spacing: -0.1px;
   --text-body: 16px;
-  --text-body--line-height: 1.5;
+  --text-body--line-height: 1.55;
   --text-body--letter-spacing: -0.1px;
-  --text-body-lg: 18px;
+  --text-body-lg: 19px;
   --text-body-lg--line-height: 1.5;
-  --text-body-lg--letter-spacing: -0.15px;
-  --text-subheading: 22px;
-  --text-subheading--line-height: 1.3;
-  --text-subheading--letter-spacing: -0.3px;
-  --text-heading-sm: 28px;
-  --text-heading-sm--line-height: 1.2;
-  --text-heading-sm--letter-spacing: -0.5px;
-  --text-heading: 40px;
-  --text-heading--line-height: 1.1;
-  --text-heading--letter-spacing: -1px;
-  --text-heading-lg: 56px;
-  --text-heading-lg--line-height: 1.05;
-  --text-heading-lg--letter-spacing: -1.8px;
-  --text-display: 72px;
-  --text-display--line-height: 1.02;
-  --text-display--letter-spacing: -2.5px;
+  --text-body-lg--letter-spacing: -0.2px;
+  --text-subheading: 24px;
+  --text-subheading--line-height: 1.25;
+  --text-subheading--letter-spacing: -0.4px;
+  --text-heading-sm: 30px;
+  --text-heading-sm--line-height: 1.15;
+  --text-heading-sm--letter-spacing: -0.6px;
+  --text-heading: 46px;
+  --text-heading--line-height: 1.05;
+  --text-heading--letter-spacing: -1.4px;
+  --text-heading-lg: 64px;
+  --text-heading-lg--line-height: 1.0;
+  --text-heading-lg--letter-spacing: -2.2px;
+  --text-display: 84px;
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -3px;
 
   /* --- צללים רכים --- */
-  --shadow-card:
-    0 1px 2px rgba(12, 13, 13, 0.04), 0 10px 30px rgba(12, 13, 13, 0.06);
-  --shadow-soft: 0 1px 2px rgba(12, 13, 13, 0.05), 0 4px 14px rgba(12, 13, 13, 0.05);
-  --shadow-green: 0 8px 24px rgba(25, 200, 83, 0.28);
+  --shadow-soft: 0 1px 2px rgba(22, 21, 19, 0.04), 0 6px 20px rgba(22, 21, 19, 0.05);
+  --shadow-card: 0 2px 6px rgba(22, 21, 19, 0.05), 0 16px 40px rgba(22, 21, 19, 0.08);
 }
 
-/* --- בסיס --- */
 @layer base {
-  html {
-    /* Lenis (smooth scroll) שולט בגלילה — מבטלים את ה-scroll-behavior המובנה */
-    scroll-behavior: auto;
-  }
   body {
     background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: var(--text-body);
-    line-height: 1.5;
+    line-height: 1.55;
     letter-spacing: -0.1px;
   }
 }
