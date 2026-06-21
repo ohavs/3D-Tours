@@ -24,9 +24,9 @@
   --color-paper: #ffffff; /* כרטיסים */
   --color-pure-white: #ffffff; /* alias */
 
-  /* --- פונט: Heebo (גיאומטרי, תומך עברית) --- */
-  --font-sans: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-heebo), ui-sans-serif, system-ui, sans-serif;
+  /* --- פונט: Discovery FS (מקומי, תומך עברית) --- */
+  --font-sans: var(--font-discovery), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-discovery), ui-sans-serif, system-ui, sans-serif;
 
   /* --- סולם טיפוגרפי אחיד ומוגדל --- */
   --text-caption: 14px;
