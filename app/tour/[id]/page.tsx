@@ -59,15 +59,16 @@ export default async function TourPage({
   // תמיד יהיה גובה אמיתי לצייר בתוכו.
   return (
     <main className="flex h-[100dvh] flex-col">
-      {/* פס עליון עם שם הסיור */}
-      {/* פס עליון כהה תואם למערכת העיצוב */}
-      <header className="flex items-center justify-between bg-graphite-night px-5 py-3 text-paper">
-        <h1 className="font-display text-subheading font-medium">סיור לדוגמה</h1>
+      {/* פס עליון לבן נקי (סגנון Steep) */}
+      <header className="flex items-center justify-between border-b border-dove/40 bg-pure-white px-5 py-3">
+        <h1 className="font-display text-subheading font-semibold text-ink">
+          סיור לדוגמה
+        </h1>
         <div className="flex items-center gap-4">
-          <span className="text-caption text-paper/60">מזהה: {id}</span>
+          <span className="text-caption text-graphite">מזהה: {id}</span>
           <Link
             href="/"
-            className="flex items-center gap-1 rounded-button bg-obsidian px-3 py-1.5 text-caption font-medium text-paper transition hover:opacity-90"
+            className="flex items-center gap-1 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
           >
             <span aria-hidden>→</span> חזרה לאתר
           </Link>

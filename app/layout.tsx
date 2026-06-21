@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
+import { Assistant } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 
-// פונט הכותרות — serif עברי עריכותי (תחליף ל-ppmondwest)
-const frankRuhl = Frank_Ruhl_Libre({
-  variable: "--font-frank-ruhl",
-  subsets: ["latin", "hebrew"],
-  weight: ["400", "500"],
-});
-
-// פונט הגוף — sans עברי נקי (תחליף ל-af)
+// פונט יחיד לכל הטקסט — Assistant (sans עברי נקי)
 const assistant = Assistant({
   variable: "--font-assistant",
   subsets: ["latin", "hebrew"],
@@ -28,11 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="he"
-      dir="rtl"
-      className={`${frankRuhl.variable} ${assistant.variable} h-full antialiased`}
-    >
+    <html lang="he" dir="rtl" className={`${assistant.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <NavBar />
         {children}

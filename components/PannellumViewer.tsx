@@ -71,6 +71,20 @@ function loadPannellum(): Promise<void> {
   return pannellumLoader
 }
 
+// --- בניית החץ המותאם: כדור + תווית טקסט שצפה מעליו ---
+// Pannellum קורא לפונקציה הזו לכל hotspot ומעביר לה את אלמנט ה-div
+// של החץ ואת הטקסט. אנחנו מוסיפים תווית גלויה תמיד.
+function hotspotTooltip(hotSpotDiv: HTMLElement, text: string) {
+  const label = document.createElement('span')
+  label.className = 'tour-hotspot__label'
+  label.textContent = text
+  hotSpotDiv.appendChild(label)
+  // ממרכזים את התווית מעל הכדור (offsetWidth זמין כי האלמנט כבר ב-DOM)
+  label.style.marginInlineStart =
+    -(label.offsetWidth - hotSpotDiv.offsetWidth) / 2 + 'px'
+  label.style.marginTop = -label.offsetHeight - 14 + 'px'
+}
+
 // --- ה-props (הקלט) שהקומפוננטה מקבלת ---
 interface PannellumViewerProps {
   scenes: ViewerScene[] // רשימת החדרים (סצנות)
@@ -110,6 +124,11 @@ export default function PannellumViewer({
               type: 'scene', // hotspot שמעביר לסצנה אחרת
               text: h.text,
               sceneId: h.targetSceneId,
+              // חץ מותאם אישית: כדור בולט + תווית טקסט גלויה תמיד
+              // (ברירת המחדל של Pannellum כמעט בלתי נראית)
+              cssClass: 'tour-hotspot',
+              createTooltipFunc: hotspotTooltip,
+              createTooltipArgs: h.text,
             })),
           }
         }
