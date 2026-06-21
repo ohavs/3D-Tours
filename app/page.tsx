@@ -131,7 +131,7 @@ export default function HomePage() {
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="text-body-lg text-graphite">
+            <p className="group rounded-2xl p-6 text-body-lg text-graphite transition-colors duration-500 hover:bg-signal/[0.08] hover:text-carbon sm:p-8">
               סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את
               החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.
             </p>
@@ -140,24 +140,24 @@ export default function HomePage() {
 
         <div className="mt-16 grid gap-y-10 border-t border-slate/20 pt-12 sm:grid-cols-3 sm:divide-x sm:divide-slate/20 sm:rtl:divide-x-reverse">
           <Reveal>
-            <div className="sm:px-8 sm:first:pr-0">
-              <p className="font-display text-heading font-extrabold text-carbon">
+            <div className="group sm:px-8 sm:first:pr-0">
+              <p className="font-display text-heading font-extrabold text-carbon transition-colors duration-300 group-hover:text-signal">
                 <CountUp to={2.7} decimals={1} suffix="×" />
               </p>
               <p className="mt-2 text-body text-graphite">יותר זמן צפייה מול תמונות רגילות</p>
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="sm:px-8">
-              <p className="font-display text-heading font-extrabold text-carbon">
+            <div className="group sm:px-8">
+              <p className="font-display text-heading font-extrabold text-carbon transition-colors duration-300 group-hover:text-signal">
                 24<span className="text-signal">/</span>7
               </p>
               <p className="mt-2 text-body text-graphite">הנכס פתוח לביקור, מכל מכשיר</p>
             </div>
           </Reveal>
           <Reveal delay={0.2}>
-            <div className="sm:px-8">
-              <p className="font-display text-heading font-extrabold text-carbon">
+            <div className="group sm:px-8">
+              <p className="font-display text-heading font-extrabold text-carbon transition-colors duration-300 group-hover:text-signal">
                 <CountUp to={48} suffix=" שעות" />
               </p>
               <p className="mt-2 text-body text-graphite">מהצילום ועד סיור מוכן</p>
@@ -175,13 +175,20 @@ export default function HomePage() {
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="space-y-4 text-body-lg text-graphite">
-              <p>
+            <div className="group rounded-2xl p-6 transition-colors duration-500 hover:bg-signal/[0.08] sm:p-8">
+              <p className="text-body-lg text-graphite transition-colors duration-500 group-hover:text-carbon">
                 אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא
                 מקצה לקצה: אני מגיע, סורק את הנכס, ובונה את הסיור עד שהוא מוכן
                 להטמעה אצלך.
               </p>
-              <p className="text-caption text-slate">
+              <a
+                href="#contact"
+                className="mt-4 inline-flex translate-y-1 items-center gap-1.5 text-body font-semibold text-signal opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                דברו איתי
+                <ArrowLeft size={17} strokeWidth={2.4} />
+              </a>
+              <p className="mt-4 text-caption text-slate">
                 * טקסט לדוגמה — שלח לי משפט-שניים אישיים ואחליף אותם כאן.
               </p>
             </div>
