@@ -17,11 +17,13 @@ const TEST_SCENES: ViewerScene[] = [
     id: 'living-room',
     title: 'סלון',
     panorama: 'https://pannellum.org/images/alma.jpg',
-    // חץ ניווט: מהסלון אפשר לעבור ל"מרפסת"
+    // חץ ניווט: מהסלון אפשר לעבור ל"מרפסת".
+    // pitch/yaw קובעים את מיקום החץ בכדור ה-360°. ערכים קרובים ל-0
+    // ממקמים אותו במרכז התצוגה הראשונית, כך שרואים אותו מיד.
     hotSpots: [
       {
-        pitch: -3,
-        yaw: 130,
+        pitch: -8,
+        yaw: 5,
         text: 'מעבר למרפסת',
         targetSceneId: 'balcony',
       },
@@ -34,8 +36,8 @@ const TEST_SCENES: ViewerScene[] = [
     // חץ חזרה לסלון
     hotSpots: [
       {
-        pitch: -3,
-        yaw: 0,
+        pitch: -8,
+        yaw: 5,
         text: 'חזרה לסלון',
         targetSceneId: 'living-room',
       },
