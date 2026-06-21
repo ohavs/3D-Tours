@@ -8,6 +8,7 @@
 // בקוד. בשלב הבא נחבר את זה למסד הנתונים האמיתי.
 // ============================================================
 
+import Link from 'next/link'
 import PannellumViewer from '@/components/PannellumViewer'
 import type { ViewerScene } from '@/lib/types'
 
@@ -59,9 +60,18 @@ export default async function TourPage({
   return (
     <main className="flex h-[100dvh] flex-col">
       {/* פס עליון עם שם הסיור */}
-      <header className="flex items-center justify-between bg-neutral-900 px-4 py-3 text-white">
-        <h1 className="text-lg font-semibold">סיור לדוגמה</h1>
-        <span className="text-sm text-neutral-400">מזהה: {id}</span>
+      {/* פס עליון כהה תואם למערכת העיצוב */}
+      <header className="flex items-center justify-between bg-graphite-night px-5 py-3 text-paper">
+        <h1 className="font-display text-subheading font-medium">סיור לדוגמה</h1>
+        <div className="flex items-center gap-4">
+          <span className="text-caption text-paper/60">מזהה: {id}</span>
+          <Link
+            href="/"
+            className="flex items-center gap-1 rounded-button bg-obsidian px-3 py-1.5 text-caption font-medium text-paper transition hover:opacity-90"
+          >
+            <span aria-hidden>→</span> חזרה לאתר
+          </Link>
+        </div>
       </header>
 
       {/* הViewer עצמו — תופס את כל שאר המסך */}

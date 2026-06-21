@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
 import "./globals.css";
+import NavBar from "@/components/NavBar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// פונט הכותרות — serif עברי עריכותי (תחליף ל-ppmondwest)
+const frankRuhl = Frank_Ruhl_Libre({
+  variable: "--font-frank-ruhl",
+  subsets: ["latin", "hebrew"],
+  weight: ["400", "500"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// פונט הגוף — sans עברי נקי (תחליף ל-af)
+const assistant = Assistant({
+  variable: "--font-assistant",
+  subsets: ["latin", "hebrew"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,9 +31,12 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${frankRuhl.variable} ${assistant.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <NavBar />
+        {children}
+      </body>
     </html>
   );
 }
