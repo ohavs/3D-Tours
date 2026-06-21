@@ -62,3 +62,22 @@ DROP POLICY IF EXISTS "Service role can do everything on scenes" ON tour_scenes;
 CREATE POLICY "Service role can do everything on scenes"
   ON tour_scenes FOR ALL
   USING (auth.role() = 'service_role');
+
+-- ============================================================
+-- טבלת פניות (טופס "צור קשר")
+-- ============================================================
+CREATE TABLE IF NOT EXISTS leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  phone TEXT,
+  message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+
+-- רק ה-service role (ה-API שלנו) ניגש לפניות — לא חשוף לציבור
+DROP POLICY IF EXISTS "Service role manages leads" ON leads;
+CREATE POLICY "Service role manages leads"
+  ON leads FOR ALL
+  USING (auth.role() = 'service_role');

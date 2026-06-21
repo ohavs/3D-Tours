@@ -13,6 +13,8 @@ import { useEffect, useState } from 'react'
 
 const LINKS = [
   { id: 'service', label: 'השירות' },
+  { id: 'pricing', label: 'מחירים' },
+  { id: 'faq', label: 'שאלות' },
   { id: 'contact', label: 'צור קשר' },
 ]
 
