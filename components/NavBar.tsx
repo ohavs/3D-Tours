@@ -12,8 +12,8 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const LINKS = [
-  { id: 'how', label: 'איך זה עובד' },
-  { id: 'tours', label: 'דוגמה' },
+  { id: 'service', label: 'השירות' },
+  { id: 'contact', label: 'צור קשר' },
 ]
 
 export default function NavBar() {
