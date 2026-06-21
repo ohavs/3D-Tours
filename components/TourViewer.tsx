@@ -54,12 +54,9 @@ export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
               caption: n.name,
             })) as unknown as VirtualTourNode[],
             startNodeId,
-            // חצים גדולים, לבנים ובולטים — קל לראות ולפי לחיצה
+            // חצים גדולים יותר וברורים יותר
             arrowStyle: {
-              color: '#ffffff',
-              hoverColor: '#5d2a1a',
-              outlineColor: '#17191c',
-              scale: [1.4, 3],
+              size: { width: 120, height: 120 },
             },
           }),
         ],
