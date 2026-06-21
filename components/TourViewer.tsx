@@ -43,13 +43,24 @@ export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
       viewer = new Viewer({
         container: containerRef.current,
         defaultYaw: '130deg',
-        navbar: ['zoom', 'move', 'fullscreen'],
+        navbar: ['zoom', 'move', 'caption', 'fullscreen'],
         plugins: [
           VirtualTourPlugin.withConfig({
             positionMode: 'gps', // מיקום החצים לפי קואורדינטות
             renderMode: '3d', // חצים על הרצפה + מעבר "צעידה" חלק
-            nodes: nodes as unknown as VirtualTourNode[],
+            // caption = שם הנקודה, כדי שייראה בפס התחתון ויתחלף בכל מעבר
+            nodes: nodes.map((n) => ({
+              ...n,
+              caption: n.name,
+            })) as unknown as VirtualTourNode[],
             startNodeId,
+            // חצים גדולים, לבנים ובולטים — קל לראות ולפי לחיצה
+            arrowStyle: {
+              color: '#ffffff',
+              hoverColor: '#5d2a1a',
+              outlineColor: '#17191c',
+              scale: [1.4, 3],
+            },
           }),
         ],
       })
