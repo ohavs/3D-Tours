@@ -12,36 +12,40 @@ import Link from 'next/link'
 import PannellumViewer from '@/components/PannellumViewer'
 import type { ViewerScene } from '@/lib/types'
 
-// שתי תמונות 360° חינמיות לבדיקה (אותו פורמט כמו ה-Insta360)
+// מרחב בדיקה של 3 חדרים מקושרים זה לזה (כל חדר מגיע לשני האחרים),
+// כדי לוודא שכל מנגנון הניווט עובד — קדימה, אחורה, וצומת עם 2 יציאות.
+// אלו תמונות 360° חינמיות מהאינטרנט שמשמשות כ"חדרים" עד שיהיו צילומים.
 const TEST_SCENES: ViewerScene[] = [
   {
     id: 'living-room',
     title: 'סלון',
     panorama: 'https://pannellum.org/images/alma.jpg',
-    // חץ ניווט: מהסלון אפשר לעבור ל"מרפסת".
-    // pitch/yaw קובעים את מיקום החץ בכדור ה-360°. ערכים קרובים ל-0
-    // ממקמים אותו במרכז התצוגה הראשונית, כך שרואים אותו מיד.
+    // pitch/yaw קובעים את מיקום החץ בכדור ה-360°. שתי היציאות
+    // ממוקמות סביב מרכז התצוגה הראשונית כדי שייראו מיד.
     hotSpots: [
-      {
-        pitch: -8,
-        yaw: 5,
-        text: 'מעבר למרפסת',
-        targetSceneId: 'balcony',
-      },
+      { pitch: -4, yaw: -25, text: 'למטבח', targetSceneId: 'kitchen' },
+      { pitch: -4, yaw: 25, text: 'לחצר', targetSceneId: 'garden' },
     ],
   },
   {
-    id: 'balcony',
-    title: 'מרפסת',
+    id: 'kitchen',
+    title: 'מטבח',
     panorama: 'https://pannellum.org/images/cerro-toco-0.jpg',
-    // חץ חזרה לסלון
     hotSpots: [
-      {
-        pitch: -8,
-        yaw: 5,
-        text: 'חזרה לסלון',
-        targetSceneId: 'living-room',
-      },
+      { pitch: -4, yaw: -25, text: 'לסלון', targetSceneId: 'living-room' },
+      { pitch: -4, yaw: 25, text: 'לחצר', targetSceneId: 'garden' },
+    ],
+  },
+  {
+    id: 'garden',
+    title: 'חצר',
+    // תמונת סיור ציבורית ידועה (Photo Sphere Viewer). אם החדר הזה
+    // יוצא ריק — סימן שהמארח חסום, ואז נחליף לתמונה אחרת.
+    panorama:
+      'https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-1.jpg',
+    hotSpots: [
+      { pitch: -4, yaw: -25, text: 'לסלון', targetSceneId: 'living-room' },
+      { pitch: -4, yaw: 25, text: 'למטבח', targetSceneId: 'kitchen' },
     ],
   },
 ]

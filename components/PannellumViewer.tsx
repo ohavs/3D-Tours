@@ -118,6 +118,11 @@ export default function PannellumViewer({
             panorama: scene.panorama,
             title: scene.title,
             autoLoad: true,
+            // תצוגה התחלתית: מסתכלים ישר קדימה ומעט למטה, כך שחצי
+            // הניווט (שממוקמים סביב yaw 0) נראים מיד עם הכניסה לחדר.
+            yaw: 0,
+            pitch: -4,
+            hfov: 110,
             hotSpots: (scene.hotSpots ?? []).map((h) => ({
               pitch: h.pitch,
               yaw: h.yaw,
