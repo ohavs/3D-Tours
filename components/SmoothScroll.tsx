@@ -2,8 +2,8 @@
 
 // ============================================================
 // components/SmoothScroll.tsx
-// גלילה חלקה לכל האתר (Lenis). autoRaf=true נותן ל-Lenis לנהל
-// את לולאת ה-rAF בעצמו — הכי אמין.
+// גלילה חלקה לכל האתר (Lenis), בלולאת requestAnimationFrame
+// סטנדרטית — הדרך האמינה ביותר גם בדסקטופ.
 // ============================================================
 
 import { useEffect } from 'react'
@@ -21,12 +21,22 @@ export default function SmoothScroll({
     if (prefersReduced) return
 
     const lenis = new Lenis({
-      autoRaf: true,
-      duration: 1.15,
-      easing: (t) => 1 - Math.pow(1 - t, 3),
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
     })
 
-    return () => lenis.destroy()
+    let rafId = 0
+    function raf(time: number) {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+    rafId = requestAnimationFrame(raf)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      lenis.destroy()
+    }
   }, [])
 
   return <>{children}</>

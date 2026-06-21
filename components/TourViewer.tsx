@@ -49,18 +49,14 @@ export default function TourViewer({ nodes, startNodeId }: TourViewerProps) {
         navbar: ['zoom', 'move', 'caption', 'fullscreen'],
         plugins: [
           VirtualTourPlugin.withConfig({
-            positionMode: 'gps', // מיקום החצים לפי קואורדינטות
-            renderMode: '3d', // חצים על הרצפה + מעבר "צעידה" חלק
+            positionMode: 'gps', // מיקום הנקודות לפי קואורדינטות
+            renderMode: '2d', // נקודות שטוחות וזקופות (קל יותר לזהות)
             // caption = שם הנקודה, כדי שייראה בפס התחתון ויתחלף בכל מעבר
             nodes: nodes.map((n) => ({
               ...n,
               caption: n.name,
             })) as unknown as VirtualTourNode[],
             startNodeId,
-            // חצים גדולים יותר וברורים יותר
-            arrowStyle: {
-              size: { width: 120, height: 120 },
-            },
           }),
         ],
       })

@@ -12,7 +12,6 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const LINKS = [
-  { id: 'features', label: 'יכולות' },
   { id: 'how', label: 'איך זה עובד' },
   { id: 'tours', label: 'דוגמה' },
 ]

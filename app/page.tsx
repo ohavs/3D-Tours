@@ -1,18 +1,17 @@
 // ============================================================
-// app/page.tsx — דף הבית (Ventriloc: קונסולת אנליטיקס על נייר)
-// hero מפוצל (טקסט + מוקאפ דשבורד), אלמנט סיור אחד, שלושה צעדים,
-// קריאה לפעולה, ופוטר. טיפוגרפיה גדולה ואחידה, אקסנט כתום עדין.
+// app/page.tsx — דף הבית (Ventriloc)
+// hero מפוצל: טקסט + תצוגת סיור אחת (אלמנט הסיור היחיד).
+// אחריו: שלושה צעדים, קריאה לפעולה, ופוטר.
 // ============================================================
 
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Compass, MousePointerClick, Share2 } from 'lucide-react'
 import { Reveal } from '@/components/anim'
-import HeroShowcase from '@/components/HeroShowcase'
 
 const STEPS = [
-  { n: '01', t: 'מצלמים', d: 'תמונת 360° לכל חדר עם מצלמת פנורמה.' },
-  { n: '02', t: 'מחברים', d: 'מסמנים חצי ניווט בין החדרים בעורך.' },
-  { n: '03', t: 'משתפים', d: 'לינק ייחודי וקוד הטמעה מוכן לכל אתר.' },
+  { icon: Compass, n: '01', t: 'מצלמים', d: 'תמונת 360° לכל חדר עם מצלמת פנורמה.' },
+  { icon: MousePointerClick, n: '02', t: 'מחברים', d: 'מסמנים חצי ניווט בין החדרים בעורך.' },
+  { icon: Share2, n: '03', t: 'משתפים', d: 'לינק ייחודי וקוד הטמעה מוכן לכל אתר.' },
 ]
 
 export default function HomePage() {
@@ -54,72 +53,58 @@ export default function HomePage() {
             </Reveal>
           </div>
 
-          {/* מוקאפ דשבורד */}
-          <HeroShowcase />
-        </div>
-      </section>
-
-      {/* ===================== אלמנט הסיור היחיד ===================== */}
-      <section id="features" className="mx-auto max-w-[1200px] px-6 py-20">
-        <Reveal>
-          <div className="overflow-hidden rounded-lg border border-slate/15 bg-paper shadow-soft">
-            <div className="grid items-stretch gap-0 md:grid-cols-2">
-              {/* טקסט */}
-              <div className="flex flex-col justify-center p-8 sm:p-12">
-                <h2 className="font-display text-heading-sm font-extrabold text-carbon sm:text-heading">
-                  לא תמונה.
-                  <br />
-                  צעידה אמיתית בנכס.
-                </h2>
-                <p className="mt-5 max-w-md text-body-lg text-graphite">
-                  הלקוח עובר מנקודה לנקודה, מסתובב 360° בכל חדר, ומרגיש את החלל
-                  והאור — בדיוק כמו ביקור פיזי.
-                </p>
-                <div className="mt-8">
-                  <Link
-                    href="/tour/test"
-                    className="inline-flex items-center gap-2 rounded-full bg-carbon px-6 py-3 text-body font-semibold text-paper transition-opacity hover:opacity-85"
-                  >
-                    התחילו סיור
-                    <ArrowLeft size={18} strokeWidth={2.4} />
-                  </Link>
-                </div>
-              </div>
-              {/* תצוגה מקדימה (אלמנט סיור יחיד) */}
-              <Link
-                href="/tour/test"
-                className="group relative block min-h-[320px] bg-mist md:min-h-[460px]"
-              >
+          {/* תצוגת הסיור (אלמנט יחיד) */}
+          <Reveal delay={0.15}>
+            <Link
+              href="/tour/test"
+              className="group block overflow-hidden rounded-lg border border-slate/15 bg-paper p-2.5 shadow-card"
+            >
+              <div className="relative overflow-hidden rounded-md bg-mist">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-3.jpg"
                   alt="תצוגת סיור 360°"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-[300px] w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-[440px]"
                 />
-                <span className="absolute bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-paper px-5 py-2.5 text-caption font-semibold text-carbon shadow-card">
-                  <span className="h-2 w-2 rounded-full bg-signal" />
+                {/* תווית סיור חי */}
+                <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-paper px-4 py-2 text-caption font-semibold text-carbon shadow-soft">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-signal" />
                   סיור חי 360°
                 </span>
-              </Link>
-            </div>
-          </div>
-        </Reveal>
+                {/* כפתור הפעלה במרכז */}
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-paper/90 shadow-card transition-transform group-hover:scale-110">
+                    <ArrowLeft className="text-carbon" size={26} strokeWidth={2.4} />
+                  </span>
+                </span>
+              </div>
+            </Link>
+          </Reveal>
+        </div>
       </section>
 
       {/* ===================== שלושה צעדים ===================== */}
-      <section id="how" className="mx-auto max-w-[1200px] px-6 py-20">
+      <section id="how" className="mx-auto max-w-[1200px] px-6 py-24">
         <Reveal>
           <h2 className="font-display text-heading-sm font-extrabold text-carbon sm:text-heading">
             שלושה צעדים. זה הכל.
           </h2>
+          <p className="mt-4 max-w-md text-body-lg text-graphite">
+            מצילום הנכס ועד לינק מוכן לשיתוף — בלי ידע טכני.
+          </p>
         </Reveal>
-        <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-3">
+        <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-3">
           {STEPS.map((s, i) => (
             <Reveal key={s.n} delay={i * 0.12}>
-              <span className="font-display text-heading font-extrabold text-signal">
-                {s.n}
-              </span>
-              <h3 className="mt-3 text-subheading font-bold text-carbon">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-paper text-signal shadow-soft">
+                  <s.icon size={22} strokeWidth={2} />
+                </span>
+                <span className="font-display text-heading-sm font-extrabold text-carbon">
+                  {s.n}
+                </span>
+              </div>
+              <h3 className="mt-5 text-subheading font-bold text-carbon">
                 {s.t}
               </h3>
               <p className="mt-2 text-body-lg text-graphite">{s.d}</p>
@@ -129,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== CTA ===================== */}
-      <section id="tours" className="mx-auto max-w-[1200px] px-6 py-24">
+      <section id="tours" className="mx-auto max-w-[1200px] px-6 pb-24">
         <Reveal>
           <div className="rounded-lg bg-carbon px-8 py-16 text-center sm:py-20">
             <h2 className="mx-auto max-w-2xl font-display text-heading-sm font-extrabold text-paper sm:text-heading">
@@ -164,7 +149,6 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col gap-3 sm:items-end">
             <div className="flex gap-6 text-caption font-medium text-graphite">
-              <a href="#features" className="hover:text-carbon">יכולות</a>
               <a href="#how" className="hover:text-carbon">איך זה עובד</a>
               <Link href="/tour/test" className="hover:text-carbon">סיור לדוגמה</Link>
             </div>
