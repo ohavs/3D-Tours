@@ -10,45 +10,48 @@
 
 import Link from 'next/link'
 import PannellumViewer from '@/components/PannellumViewer'
-import type { ViewerScene } from '@/lib/types'
+import type { ViewerScene, ViewerHotspot } from '@/lib/types'
 
-// מרחב בדיקה של 3 חדרים מקושרים זה לזה (כל חדר מגיע לשני האחרים),
-// כדי לוודא שכל מנגנון הניווט עובד — קדימה, אחורה, וצומת עם 2 יציאות.
-// אלו תמונות 360° חינמיות מהאינטרנט שמשמשות כ"חדרים" עד שיהיו צילומים.
-const TEST_SCENES: ViewerScene[] = [
-  {
-    id: 'living-room',
-    title: 'סלון',
-    panorama: 'https://pannellum.org/images/alma.jpg',
-    // pitch/yaw קובעים את מיקום החץ בכדור ה-360°. שתי היציאות
-    // ממוקמות סביב מרכז התצוגה הראשונית כדי שייראו מיד.
-    hotSpots: [
-      { pitch: -4, yaw: -25, text: 'למטבח', targetSceneId: 'kitchen' },
-      { pitch: -4, yaw: 25, text: 'לחצר', targetSceneId: 'garden' },
-    ],
+// "טיול" במקום אחד קוהרנטי: סדרת נקודות צילום סמוכות של אותו מיקום
+// (סט הסיור הציבורי של Photo Sphere Viewer). במקום לדלג בין תמונות
+// זרות — צועדים קדימה ואחורה לאורך מסלול, עם חצים על הרצפה.
+const BASE = 'https://photo-sphere-viewer-data.netlify.app/assets/tour/'
+const POINT_COUNT = 6
+
+// בונים שרשרת: כל נקודה מחוברת לקודמת ולבאה אחריה.
+// חץ "קדימה" במרכז התצוגה (yaw 0) ונמוך לכיוון הרצפה (pitch -32),
+// חץ "אחורה" מאחור (yaw 180). targetYaw שומר על אותו כיוון תנועה.
+const TEST_SCENES: ViewerScene[] = Array.from(
+  { length: POINT_COUNT },
+  (_, i) => {
+    const n = i + 1
+    const hotSpots: ViewerHotspot[] = []
+    if (n < POINT_COUNT) {
+      hotSpots.push({
+        pitch: -32,
+        yaw: 0,
+        text: 'קדימה',
+        targetSceneId: `point-${n + 1}`,
+        targetYaw: 0,
+      })
+    }
+    if (n > 1) {
+      hotSpots.push({
+        pitch: -32,
+        yaw: 180,
+        text: 'אחורה',
+        targetSceneId: `point-${n - 1}`,
+        targetYaw: 180,
+      })
+    }
+    return {
+      id: `point-${n}`,
+      title: `נקודה ${n} מתוך ${POINT_COUNT}`,
+      panorama: `${BASE}key-biscayne-${n}.jpg`,
+      hotSpots,
+    }
   },
-  {
-    id: 'kitchen',
-    title: 'מטבח',
-    panorama: 'https://pannellum.org/images/cerro-toco-0.jpg',
-    hotSpots: [
-      { pitch: -4, yaw: -25, text: 'לסלון', targetSceneId: 'living-room' },
-      { pitch: -4, yaw: 25, text: 'לחצר', targetSceneId: 'garden' },
-    ],
-  },
-  {
-    id: 'garden',
-    title: 'חצר',
-    // תמונת סיור ציבורית ידועה (Photo Sphere Viewer). אם החדר הזה
-    // יוצא ריק — סימן שהמארח חסום, ואז נחליף לתמונה אחרת.
-    panorama:
-      'https://photo-sphere-viewer-data.netlify.app/assets/tour/key-biscayne-1.jpg',
-    hotSpots: [
-      { pitch: -4, yaw: -25, text: 'לסלון', targetSceneId: 'living-room' },
-      { pitch: -4, yaw: 25, text: 'למטבח', targetSceneId: 'kitchen' },
-    ],
-  },
-]
+)
 
 // שימו לב: בגרסה החדשה של Next.js, params הוא "הבטחה" (Promise)
 // ולכן צריך await כדי לקרוא ממנו.
@@ -81,7 +84,7 @@ export default async function TourPage({
 
       {/* הViewer עצמו — תופס את כל שאר המסך */}
       <div className="relative min-h-0 flex-1">
-        <PannellumViewer scenes={TEST_SCENES} firstSceneId="living-room" />
+        <PannellumViewer scenes={TEST_SCENES} firstSceneId="point-1" />
       </div>
     </main>
   )

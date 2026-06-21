@@ -129,6 +129,11 @@ export default function PannellumViewer({
               type: 'scene', // hotspot שמעביר לסצנה אחרת
               text: h.text,
               sceneId: h.targetSceneId,
+              // כיוון המבט אחרי המעבר (אם הוגדר) — לתחושת המשכיות
+              ...(h.targetYaw !== undefined ? { targetYaw: h.targetYaw } : {}),
+              ...(h.targetPitch !== undefined
+                ? { targetPitch: h.targetPitch }
+                : {}),
               // חץ מותאם אישית: כדור בולט + תווית טקסט גלויה תמיד
               // (ברירת המחדל של Pannellum כמעט בלתי נראית)
               cssClass: 'tour-hotspot',

@@ -58,4 +58,7 @@ export interface ViewerHotspot {
   yaw: number
   text: string
   targetSceneId: string // לאיזו סצנה החץ הזה מוביל
+  // לאיזה כיוון להסתכל אחרי המעבר — שומר על תחושת "המשכתי באותו כיוון"
+  targetYaw?: number
+  targetPitch?: number
 }
