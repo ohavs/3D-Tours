@@ -3,6 +3,7 @@ import { Heebo } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import SmoothScroll from "@/components/SmoothScroll";
+import ScrollProgress from "@/components/ScrollProgress";
 
 // פונט יחיד — Heebo (וייב Google Sans, תמיכה מלאה בעברית)
 const heebo = Heebo({
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${heebo.variable} antialiased`}>
       <body className="flex flex-col">
         <SmoothScroll>
+          <ScrollProgress />
           <NavBar />
           {children}
         </SmoothScroll>

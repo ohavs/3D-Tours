@@ -26,8 +26,32 @@ export default function HomePage() {
   return (
     <main className="flex-1">
       {/* ======================= HERO ======================= */}
-      <section className="mx-auto max-w-[1200px] px-6 pb-16 pt-16 sm:pt-24">
-        <div className="grid items-center gap-14 md:grid-cols-2">
+      <section className="relative overflow-hidden">
+        {/* רקע עדין: זוהר כתום + מרקם נקודות שמתעמעם */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute inset-x-0 top-0 h-[460px]"
+            style={{
+              background:
+                'radial-gradient(45% 60% at 50% 0%, rgba(255,104,44,0.10), transparent 70%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-50"
+            style={{
+              backgroundImage:
+                'radial-gradient(#d9dbe0 1px, transparent 1px)',
+              backgroundSize: '22px 22px',
+              maskImage:
+                'linear-gradient(to bottom, black, transparent 65%)',
+              WebkitMaskImage:
+                'linear-gradient(to bottom, black, transparent 65%)',
+            }}
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-[1200px] px-6 pb-16 pt-16 sm:pt-24">
+          <div className="grid items-center gap-14 md:grid-cols-2">
           <div>
             <Reveal>
               <span className="inline-flex items-center gap-2 text-caption font-medium text-graphite">
@@ -92,6 +116,7 @@ export default function HomePage() {
               </div>
             </Link>
           </Reveal>
+          </div>
         </div>
       </section>
 

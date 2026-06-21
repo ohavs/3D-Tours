@@ -7,7 +7,11 @@
 // ============================================================
 
 import { useState } from 'react'
+import { User, Phone, MessageSquare } from 'lucide-react'
 import { Spinner } from '@/components/anim'
+
+const fieldBase =
+  'w-full rounded-xl border border-slate/20 bg-fog py-3.5 pr-11 pl-4 text-body text-carbon outline-none transition-all placeholder:text-slate focus:border-carbon focus:bg-paper focus:ring-4 focus:ring-carbon/5'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
@@ -52,33 +56,37 @@ export default function ContactForm() {
     <form onSubmit={onSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-caption font-medium text-graphite">שם</span>
-          <input
-            name="name"
-            required
-            className="mt-1.5 w-full rounded-xl border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
-            placeholder="השם שלך"
-          />
+          <span className="mb-1.5 block text-caption font-medium text-graphite">שם</span>
+          <div className="relative">
+            <User className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-graphite" size={18} />
+            <input name="name" required className={fieldBase} placeholder="השם שלך" />
+          </div>
         </label>
         <label className="block">
-          <span className="text-caption font-medium text-graphite">טלפון</span>
-          <input
-            name="phone"
-            inputMode="tel"
-            dir="ltr"
-            className="mt-1.5 w-full rounded-xl border border-slate/25 bg-fog px-4 py-3 text-right text-body text-carbon outline-none transition-colors focus:border-carbon"
-            placeholder="050-0000000"
-          />
+          <span className="mb-1.5 block text-caption font-medium text-graphite">טלפון</span>
+          <div className="relative">
+            <Phone className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-graphite" size={18} />
+            <input
+              name="phone"
+              inputMode="tel"
+              dir="ltr"
+              className={`${fieldBase} text-right`}
+              placeholder="050-0000000"
+            />
+          </div>
         </label>
       </div>
       <label className="mt-4 block">
-        <span className="text-caption font-medium text-graphite">פרטי הנכס / הודעה</span>
-        <textarea
-          name="message"
-          rows={4}
-          className="mt-1.5 w-full resize-none rounded-xl border border-slate/25 bg-fog px-4 py-3 text-body text-carbon outline-none transition-colors focus:border-carbon"
-          placeholder="כתובת, סוג הנכס, וכל פרט שיעזור לי להתכונן"
-        />
+        <span className="mb-1.5 block text-caption font-medium text-graphite">פרטי הנכס / הודעה</span>
+        <div className="relative">
+          <MessageSquare className="pointer-events-none absolute right-3.5 top-4 text-graphite" size={18} />
+          <textarea
+            name="message"
+            rows={4}
+            className={`${fieldBase} resize-none`}
+            placeholder="כתובת, סוג הנכס, וכל פרט שיעזור לי להתכונן"
+          />
+        </div>
       </label>
 
       {status === 'error' && (
