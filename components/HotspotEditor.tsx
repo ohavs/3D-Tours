@@ -246,8 +246,24 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
           )}
           <div ref={containerRef} className="h-full w-full" />
 
-          {/* place-mode toggle */}
-          {!pending && (
+          {/* no-rooms notice */}
+          {targetScenes.length === 0 && !loading && (
+            <div className="absolute inset-x-0 bottom-6 z-20 mx-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-white/10 bg-carbon/90 p-5 text-center shadow-xl backdrop-blur-sm">
+              <p className="text-body font-semibold text-paper">אין עדיין חדרים נוספים</p>
+              <p className="text-caption text-paper/60">
+                כדי להגדיר נקודת ניווט צריך לפחות שני חדרים בסיור. סגור, העלה עוד תמונה ואז חזור לכאן.
+              </p>
+              <button
+                onClick={onClose}
+                className="mt-1 rounded-full bg-signal px-5 py-2 text-caption font-semibold text-paper transition-opacity hover:opacity-85"
+              >
+                סגור והוסף חדר
+              </button>
+            </div>
+          )}
+
+          {/* place-mode toggle — only shown when there are target scenes */}
+          {!pending && targetScenes.length > 0 && (
             <button
               onClick={() => setPlacing((p) => !p)}
               className={`absolute bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-caption font-semibold shadow-lg transition-all ${

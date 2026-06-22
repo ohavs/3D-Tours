@@ -2,16 +2,35 @@
 
 // ============================================================
 // components/SceneManager.tsx — ניהול סצנות (חדרים) בעורך.
-// העלאת תמונות 360° ישירות ל-R2 (presigned), יצירת סצנה לכל תמונה,
-// עריכת שם, הגדרת נקודות ניווט (hotspots), ומחיקה.
+// העלאת תמונות 360° ישירות ל-R2, loader לכל כרטיס, עריכת שם,
+// hotspots, ומחיקה.
 // ============================================================
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { UploadCloud, Trash2, Navigation } from 'lucide-react'
 import { Spinner } from '@/components/anim'
 import type { TourScene } from '@/lib/types'
 import HotspotEditor from '@/components/HotspotEditor'
+
+// Shimmer placeholder while an image loads from R2
+function ImageCard({ scene, onImgLoad }: { scene: TourScene; onImgLoad: (id: string) => void }) {
+  const [loaded, setLoaded] = useState(false)
+  return (
+    <div className="relative h-36 w-full overflow-hidden bg-mist">
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-mist via-fog to-mist" />
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={scene.image_url}
+        alt={scene.title}
+        className={`h-full w-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => { setLoaded(true); onImgLoad(scene.id) }}
+      />
+    </div>
+  )
+}
 
 export default function SceneManager({
   tourId,
@@ -23,21 +42,25 @@ export default function SceneManager({
   const router = useRouter()
   const [scenes, setScenes] = useState<TourScene[]>(initialScenes)
   const [busy, setBusy] = useState(false)
-  const [status, setStatus] = useState('')
+  const [progress, setProgress] = useState({ current: 0, total: 0 })
   const [error, setError] = useState('')
   const [editingHotspotsFor, setEditingHotspotsFor] = useState<TourScene | null>(null)
+  // track which new scene cards just appeared (to show their shimmer)
+  const freshIds = useRef(new Set<string>())
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
     setBusy(true)
     setError('')
+    setProgress({ current: 0, total: files.length })
     try {
       let index = scenes.length
+      const added: TourScene[] = []
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        setStatus(`מעלה ${i + 1}/${files.length}…`)
+        setProgress({ current: i + 1, total: files.length })
 
-        // 1) URL חתום
+        // 1) presigned URL
         const pres = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -45,7 +68,7 @@ export default function SceneManager({
         }).then((r) => r.json())
         if (!pres.uploadUrl) throw new Error(pres.error || 'יצירת העלאה נכשלה')
 
-        // 2) העלאה ישירה ל-R2
+        // 2) upload directly to R2
         const put = await fetch(pres.uploadUrl, {
           method: 'PUT',
           headers: { 'Content-Type': file.type },
@@ -53,7 +76,7 @@ export default function SceneManager({
         })
         if (!put.ok) throw new Error('העלאה ל-R2 נכשלה (בדוק CORS)')
 
-        // 3) יצירת סצנה
+        // 3) create scene record
         const sceneRes = await fetch('/api/scenes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -65,13 +88,17 @@ export default function SceneManager({
           }),
         }).then((r) => r.json())
         if (sceneRes.error) throw new Error(sceneRes.error)
+        if (sceneRes.scene) {
+          freshIds.current.add(sceneRes.scene.id)
+          added.push(sceneRes.scene as TourScene)
+        }
       }
-      setStatus('')
-      router.refresh()
+      setScenes((prev) => [...prev, ...added])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'העלאה נכשלה')
     } finally {
       setBusy(false)
+      setProgress({ current: 0, total: 0 })
     }
   }
 
@@ -88,7 +115,6 @@ export default function SceneManager({
     if (!confirm('למחוק את החדר הזה?')) return
     await fetch(`/api/scenes/${id}`, { method: 'DELETE' })
     setScenes((prev) => prev.filter((s) => s.id !== id))
-    router.refresh()
   }
 
   function onHotspotsSaved(updated: TourScene) {
@@ -98,9 +124,11 @@ export default function SceneManager({
     }
   }
 
+  const canAddHotspots = scenes.length >= 2
+
   return (
     <div>
-      {/* עורך hotspots — fullscreen overlay */}
+      {/* hotspot editor — fullscreen overlay */}
       {editingHotspotsFor && (
         <HotspotEditor
           scene={editingHotspotsFor}
@@ -110,10 +138,10 @@ export default function SceneManager({
         />
       )}
 
-      {/* אזור העלאה */}
+      {/* upload area */}
       <label
-        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-slate/30 bg-paper p-12 text-center transition-colors hover:border-carbon ${
-          busy ? 'pointer-events-none opacity-70' : ''
+        className={`relative flex cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl border-2 border-dashed border-slate/30 bg-paper p-12 text-center transition-colors hover:border-carbon ${
+          busy ? 'pointer-events-none' : ''
         }`}
       >
         <input
@@ -124,6 +152,17 @@ export default function SceneManager({
           disabled={busy}
           onChange={(e) => handleFiles(e.target.files)}
         />
+
+        {/* progress bar strip at the bottom of the upload area */}
+        {busy && progress.total > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-mist">
+            <div
+              className="h-full bg-signal transition-all duration-300"
+              style={{ width: `${(progress.current / progress.total) * 100}%` }}
+            />
+          </div>
+        )}
+
         {busy ? (
           <Spinner className="h-7 w-7" />
         ) : (
@@ -132,20 +171,34 @@ export default function SceneManager({
           </span>
         )}
         <span className="text-body font-semibold text-carbon">
-          {busy ? status || 'מעלה…' : 'העלאת תמונות 360°'}
+          {busy
+            ? progress.total > 1
+              ? `מעלה ${progress.current} מתוך ${progress.total}…`
+              : 'מעלה…'
+            : 'העלאת תמונות 360°'}
         </span>
         <span className="text-caption text-graphite">
-          גרור לכאן או לחץ לבחירה (אפשר כמה ביחד)
+          {busy
+            ? 'אנא המתן, זה עלול לקחת כמה שניות'
+            : 'גרור לכאן או לחץ לבחירה (אפשר כמה ביחד)'}
         </span>
       </label>
 
       {error && <p className="mt-3 text-caption text-signal">{error}</p>}
 
-      {/* רשימת החדרים */}
+      {/* scene list */}
       <div className="mt-8">
-        <h2 className="text-body font-semibold text-carbon">
-          חדרים ({scenes.length})
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-body font-semibold text-carbon">
+            חדרים ({scenes.length})
+          </h2>
+          {scenes.length === 1 && (
+            <p className="text-caption text-graphite">
+              העלה חדר נוסף כדי להגדיר נקודות ניווט
+            </p>
+          )}
+        </div>
+
         {scenes.length === 0 ? (
           <p className="mt-3 text-caption text-graphite">
             עדיין אין חדרים. העלה תמונה כדי להתחיל.
@@ -157,12 +210,7 @@ export default function SceneManager({
                 key={s.id}
                 className="overflow-hidden rounded-2xl border border-slate/15 bg-paper"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={s.image_url}
-                  alt={s.title}
-                  className="h-36 w-full bg-mist object-cover"
-                />
+                <ImageCard scene={s} onImgLoad={(id) => freshIds.current.delete(id)} />
                 <div className="flex items-center gap-2 p-3">
                   <input
                     defaultValue={s.title}
@@ -171,19 +219,35 @@ export default function SceneManager({
                     }}
                     className="min-w-0 flex-1 rounded-lg border border-transparent bg-fog px-3 py-2 text-caption text-carbon outline-none focus:border-carbon"
                   />
-                  <button
-                    onClick={() => setEditingHotspotsFor(s)}
-                    title="ערוך נקודות ניווט"
-                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal"
-                    aria-label="נקודות ניווט"
-                  >
-                    <Navigation size={17} />
-                    {(s.hotspots?.length ?? 0) > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-signal text-[10px] font-bold text-paper">
-                        {s.hotspots.length}
-                      </span>
+
+                  {/* hotspot button — disabled tooltip when only 1 scene */}
+                  <div className="group relative">
+                    <button
+                      onClick={() => canAddHotspots && setEditingHotspotsFor(s)}
+                      title={canAddHotspots ? 'ערוך נקודות ניווט' : 'דרושים לפחות 2 חדרים'}
+                      disabled={!canAddHotspots}
+                      className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                        canAddHotspots
+                          ? 'text-graphite hover:bg-mist hover:text-signal'
+                          : 'cursor-not-allowed text-slate/40'
+                      }`}
+                      aria-label="נקודות ניווט"
+                    >
+                      <Navigation size={17} />
+                      {(s.hotspots?.length ?? 0) > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-signal text-[10px] font-bold text-paper">
+                          {s.hotspots.length}
+                        </span>
+                      )}
+                    </button>
+                    {/* tooltip for disabled state */}
+                    {!canAddHotspots && (
+                      <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-max rounded-lg bg-carbon px-2.5 py-1.5 text-caption text-paper opacity-0 transition-opacity group-hover:opacity-100">
+                        העלה חדר נוסף כדי לחבר
+                      </div>
                     )}
-                  </button>
+                  </div>
+
                   <button
                     onClick={() => remove(s.id)}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal"
