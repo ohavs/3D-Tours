@@ -23,7 +23,7 @@ export default function NavBar() {
   const [active, setActive] = useState('')
 
   useEffect(() => {
-    if (pathname?.startsWith('/tour/')) return
+    if (pathname?.startsWith('/tour/') || pathname?.startsWith('/admin')) return
     const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
       Boolean,
     ) as HTMLElement[]
@@ -41,7 +41,7 @@ export default function NavBar() {
     return () => obs.disconnect()
   }, [pathname])
 
-  if (pathname?.startsWith('/tour/')) return null
+  if (pathname?.startsWith('/tour/') || pathname?.startsWith('/admin')) return null
 
   return (
     <div className="sticky top-4 z-50 flex justify-center px-4">
