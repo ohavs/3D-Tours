@@ -116,10 +116,15 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
       if (isMobileDevice()) {
         // מובייל — קודם משחררים את הטקסטורה הקודמת (החלפה לפנורמה ריקה),
         // ואז טוענים את החדר. כך מחזיקים רק תמונת-ענק אחת בזיכרון.
-        await viewer.setPanorama(blankPanorama(), {
-          transition: false,
-          showLoader: false,
-        })
+        // ההחלפה הריקה לא קריטית — אם היא נכשלת ממשיכים לטעון את החדר.
+        try {
+          await viewer.setPanorama(blankPanorama(), {
+            transition: false,
+            showLoader: false,
+          })
+        } catch {
+          /* לא קריטי */
+        }
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
           transition: false,
