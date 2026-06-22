@@ -3,14 +3,15 @@
 // ============================================================
 // components/SceneManager.tsx — ניהול סצנות (חדרים) בעורך.
 // העלאת תמונות 360° ישירות ל-R2 (presigned), יצירת סצנה לכל תמונה,
-// עריכת שם, ומחיקה. רשימת הנקודות (hotspots) תגיע בשלב הבא.
+// עריכת שם, הגדרת נקודות ניווט (hotspots), ומחיקה.
 // ============================================================
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { UploadCloud, Trash2 } from 'lucide-react'
+import { UploadCloud, Trash2, Navigation } from 'lucide-react'
 import { Spinner } from '@/components/anim'
 import type { TourScene } from '@/lib/types'
+import HotspotEditor from '@/components/HotspotEditor'
 
 export default function SceneManager({
   tourId,
@@ -20,16 +21,18 @@ export default function SceneManager({
   initialScenes: TourScene[]
 }) {
   const router = useRouter()
+  const [scenes, setScenes] = useState<TourScene[]>(initialScenes)
   const [busy, setBusy] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
+  const [editingHotspotsFor, setEditingHotspotsFor] = useState<TourScene | null>(null)
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
     setBusy(true)
     setError('')
     try {
-      let index = initialScenes.length
+      let index = scenes.length
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         setStatus(`מעלה ${i + 1}/${files.length}…`)
@@ -84,11 +87,29 @@ export default function SceneManager({
   async function remove(id: string) {
     if (!confirm('למחוק את החדר הזה?')) return
     await fetch(`/api/scenes/${id}`, { method: 'DELETE' })
+    setScenes((prev) => prev.filter((s) => s.id !== id))
     router.refresh()
+  }
+
+  function onHotspotsSaved(updated: TourScene) {
+    setScenes((prev) => prev.map((s) => (s.id === updated.id ? updated : s)))
+    if (editingHotspotsFor?.id === updated.id) {
+      setEditingHotspotsFor(updated)
+    }
   }
 
   return (
     <div>
+      {/* עורך hotspots — fullscreen overlay */}
+      {editingHotspotsFor && (
+        <HotspotEditor
+          scene={editingHotspotsFor}
+          allScenes={scenes}
+          onClose={() => setEditingHotspotsFor(null)}
+          onSaved={onHotspotsSaved}
+        />
+      )}
+
       {/* אזור העלאה */}
       <label
         className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-slate/30 bg-paper p-12 text-center transition-colors hover:border-carbon ${
@@ -123,15 +144,15 @@ export default function SceneManager({
       {/* רשימת החדרים */}
       <div className="mt-8">
         <h2 className="text-body font-semibold text-carbon">
-          חדרים ({initialScenes.length})
+          חדרים ({scenes.length})
         </h2>
-        {initialScenes.length === 0 ? (
+        {scenes.length === 0 ? (
           <p className="mt-3 text-caption text-graphite">
             עדיין אין חדרים. העלה תמונה כדי להתחיל.
           </p>
         ) : (
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {initialScenes.map((s) => (
+            {scenes.map((s) => (
               <div
                 key={s.id}
                 className="overflow-hidden rounded-2xl border border-slate/15 bg-paper"
@@ -150,6 +171,19 @@ export default function SceneManager({
                     }}
                     className="min-w-0 flex-1 rounded-lg border border-transparent bg-fog px-3 py-2 text-caption text-carbon outline-none focus:border-carbon"
                   />
+                  <button
+                    onClick={() => setEditingHotspotsFor(s)}
+                    title="ערוך נקודות ניווט"
+                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal"
+                    aria-label="נקודות ניווט"
+                  >
+                    <Navigation size={17} />
+                    {(s.hotspots?.length ?? 0) > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-signal text-[10px] font-bold text-paper">
+                        {s.hotspots.length}
+                      </span>
+                    )}
+                  </button>
                   <button
                     onClick={() => remove(s.id)}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal"
