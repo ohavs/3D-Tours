@@ -101,3 +101,7 @@
 .psv-overlay {
   display: none !important;
 }
+/* עיגול הטעינה המובנה מוסתר — יש לנו אינדיקטור טעינה מעוצב משלנו */
+.psv-loader-container {
+  display: none !important;
+}

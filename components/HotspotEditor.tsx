@@ -9,7 +9,18 @@ import '@photo-sphere-viewer/core/index.css'
 import '@photo-sphere-viewer/markers-plugin/index.css'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { X, MousePointerClick, Trash2, Check } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  X,
+  MousePointerClick,
+  Trash2,
+  Check,
+  Save,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react'
 import { Spinner } from '@/components/anim'
 import { useNotify } from '@/components/ui/Notifications'
 import Select from '@/components/ui/Select'
@@ -60,8 +71,11 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
   const [targetId, setTargetId] = useState('')
   const [label, setLabel] = useState('')
   const [saving, setSaving] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
   const [dirty, setDirty] = useState(false)
-  const viewerRef = useRef<{ destroy: () => void } | null>(null)
+  const [fullscreen, setFullscreen] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const viewerRef = useRef<any>(null)
   const markersRef = useRef<{ addMarker: (m: unknown) => void; removeMarker: (id: string) => void; updateMarker: (m: unknown) => void } | null>(null)
   const placingRef = useRef(false)
 
@@ -104,12 +118,15 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
       const viewer: any = new Viewer({
         container: containerRef.current,
         panorama: scene.image_url,
-        caption: scene.title,
-        navbar: ['zoom', 'caption', 'fullscreen'],
+        navbar: false, // בקרות מותאמות משלנו
         plugins: [[MarkersPlugin, {}]],
       })
 
-      viewerRef.current = viewer as unknown as { destroy: () => void }
+      viewerRef.current = viewer
+
+      viewer.addEventListener('fullscreen', (e: { fullscreenEnabled?: boolean }) => {
+        if (!cancelled) setFullscreen(!!e.fullscreenEnabled)
+      })
 
       viewer.addEventListener('ready', () => {
         if (cancelled) return
@@ -210,6 +227,8 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
       setDirty(false)
       onSaved({ ...scene, hotspots })
       toast('נקודות הניווט נשמרו', 'success')
+      setJustSaved(true)
+      setTimeout(() => setJustSaved(false), 1800)
     } catch (err) {
       toast(err instanceof Error ? err.message : 'השמירה נכשלה', 'error')
     } finally {
@@ -251,7 +270,7 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
           נקודות ניווט — {scene.title}
         </span>
         <div className="flex items-center gap-2.5">
-          {dirty && (
+          {dirty && !saving && !justSaved && (
             <span className="hidden items-center gap-1.5 text-caption font-medium text-paper/50 sm:flex">
               <span className="h-1.5 w-1.5 rounded-full bg-signal" />
               שינויים שלא נשמרו
@@ -259,11 +278,34 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
           )}
           <button
             onClick={save}
-            disabled={saving || !dirty}
-            className="inline-flex items-center gap-1.5 rounded-full bg-signal px-4 py-2 text-caption font-semibold text-paper transition-opacity hover:opacity-85 disabled:opacity-40"
+            disabled={saving || justSaved || !dirty}
+            className={`inline-flex min-w-[92px] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-caption font-semibold text-paper transition-all hover:opacity-90 disabled:opacity-40 ${
+              justSaved ? 'bg-emerald-500 disabled:opacity-100' : 'bg-signal'
+            }`}
           >
-            {saving ? <Spinner className="h-4 w-4" /> : <Check size={15} />}
-            שמור
+            {saving ? (
+              <>
+                <Spinner className="h-4 w-4" />
+                שומר…
+              </>
+            ) : justSaved ? (
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key="saved"
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <Check size={15} strokeWidth={3} />
+                  נשמר
+                </motion.span>
+              </AnimatePresence>
+            ) : (
+              <>
+                <Save size={15} />
+                שמור
+              </>
+            )}
           </button>
           <button
             onClick={handleClose}
@@ -280,11 +322,41 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
         {/* viewer */}
         <div className="relative flex-1">
           {loading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-carbon">
-              <Spinner className="h-8 w-8" />
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-carbon">
+              <span className="spinner inline-block h-8 w-8 rounded-full border-2 border-white/20 border-t-signal" />
+              <span className="text-caption text-paper/60">טוען חדר…</span>
             </div>
           )}
           <div ref={containerRef} className="h-full w-full" />
+
+          {/* בקרות זכוכיתיות — זום ומסך מלא */}
+          {!loading && (
+            <div className="absolute bottom-6 left-6 z-20 flex overflow-hidden rounded-full border border-white/10 bg-carbon/55 backdrop-blur-md">
+              <button
+                onClick={() => viewerRef.current?.zoomIn(12)}
+                aria-label="התקרב"
+                className="flex h-10 w-10 items-center justify-center text-paper/85 transition-colors hover:bg-white/10 hover:text-paper"
+              >
+                <ZoomIn size={18} />
+              </button>
+              <span className="my-2 w-px bg-white/10" />
+              <button
+                onClick={() => viewerRef.current?.zoomOut(12)}
+                aria-label="התרחק"
+                className="flex h-10 w-10 items-center justify-center text-paper/85 transition-colors hover:bg-white/10 hover:text-paper"
+              >
+                <ZoomOut size={18} />
+              </button>
+              <span className="my-2 w-px bg-white/10" />
+              <button
+                onClick={() => viewerRef.current?.toggleFullscreen()}
+                aria-label="מסך מלא"
+                className="flex h-10 w-10 items-center justify-center text-paper/85 transition-colors hover:bg-white/10 hover:text-paper"
+              >
+                {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              </button>
+            </div>
+          )}
 
           {/* no-rooms notice */}
           {targetScenes.length === 0 && !loading && (
