@@ -45,9 +45,11 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
   const markersPluginRef = useRef<any>(null)
   const currentSceneRef = useRef<TourScene | null>(null)
   const transitioningRef = useRef(false)
+  const prefetchedRef = useRef<Set<string>>(new Set())
 
   const [loading, setLoading] = useState(true)
   const [navigating, setNavigating] = useState(false)
+  const [retrying, setRetrying] = useState(false)
   const [currentId, setCurrentId] = useState(scenes[0]?.id ?? '')
   const [railOpen, setRailOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -75,13 +77,39 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     })
   }
 
+  // טוען פנורמה עם ניסיונות חוזרים — מטפל ב"Failed to fetch" זמני
+  // שקורה בחיבור אינטרנט חלש. הניסיון הראשון עם מעבר fade, החוזרים
+  // בלי מעבר (קל יותר). backoff הולך וגדל בין הניסיונות.
+  async function loadWithRetry(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    viewer: any,
+    url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    baseOpts: any,
+    attempts = 3,
+  ) {
+    let lastErr: unknown
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const opts = i === 0 ? baseOpts : { ...baseOpts, transition: false }
+        await viewer.setPanorama(url, opts)
+        return
+      } catch (e) {
+        lastErr = e
+        console.error(`[tour] load attempt ${i + 1}/${attempts} failed:`, e)
+        if (i < attempts - 1) {
+          setRetrying(true)
+          await new Promise((r) => setTimeout(r, 900 * (i + 1)))
+        }
+      }
+    }
+    throw lastErr
+  }
+
   // מעבר בין חדרים.
   // directional=true (לחיצה על חץ): "צעד" קדימה — מסתובבים לכיוון הנקודה
   //   ומתקרבים, ואז crossfade. כך נשמרת תחושת הכיוון.
-  // directional=false (בחירה מהתפריט): שומרים על כיוון המבט הנוכחי
-  //   ופשוט עוברים בעדינות — בלי "ליישר" את המצלמה.
-  // במובייל: מעבר חסכוני בזיכרון (בלי להחזיק שתי תמונות ענקיות
-  //   בו-זמנית) כדי למנוע כשל טעינה.
+  // directional=false (בחירה מהתפריט): שומרים על כיוון המבט הנוכחי.
   async function navigateTo(
     target: TourScene,
     opts: { yaw?: number; directional?: boolean } = {},
@@ -93,44 +121,41 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     transitioningRef.current = true
     setErrorTarget(null)
     setErrorDetail('')
+    setRetrying(false)
     setNavigating(true)
     if (isMobileDevice()) setRailOpen(false)
     const yaw = opts.yaw ?? 0
     const mobile = isMobileDevice()
-    const pos = opts.directional ? { position: { yaw, pitch: 0 } } : {}
+    const directional = !!opts.directional
     try {
-      try {
-        // נתיב "יפה": בדסקטופ עם חץ — zoom-in ואז fade; אחרת fade בלבד
-        if (!mobile && opts.directional) {
+      // zoom-in מקדים (דסקטופ + חץ) — best-effort, לא קריטי
+      if (!mobile && directional) {
+        try {
           await viewer.animate({ yaw, pitch: 0, zoom: 80, speed: 350 })
-          await viewer.setPanorama(target.image_url, {
-            caption: target.title,
-            position: { yaw, pitch: 0 },
-            zoom: 50,
-            transition: { effect: 'fade', rotation: false, speed: 700 },
-            showLoader: false,
-          })
-        } else {
-          await viewer.setPanorama(target.image_url, {
-            caption: target.title,
-            transition: { effect: 'fade', rotation: false, speed: 700 },
-            showLoader: false,
-            ...pos,
-          })
+        } catch {
+          /* לא קריטי */
         }
-      } catch (e1) {
-        // נפילה לנתיב הפשוט ביותר — בלי אנימציה/מעבר — אם ה"יפה" נכשל
-        console.error('[tour] primary load failed, retrying bare:', e1)
-        await viewer.setPanorama(target.image_url, {
-          caption: target.title,
-          transition: false,
-          showLoader: false,
-          ...pos,
-        })
       }
+      const loadOpts =
+        !mobile && directional
+          ? {
+              caption: target.title,
+              position: { yaw, pitch: 0 },
+              zoom: 50,
+              transition: { effect: 'fade', rotation: false, speed: 700 },
+              showLoader: false,
+            }
+          : {
+              caption: target.title,
+              transition: { effect: 'fade', rotation: false, speed: 700 },
+              showLoader: false,
+              ...(directional ? { position: { yaw, pitch: 0 } } : {}),
+            }
+      await loadWithRetry(viewer, target.image_url, loadOpts)
       currentSceneRef.current = target
       setCurrentId(target.id)
       renderHotspots(target)
+      prefetchNeighbors(target)
     } catch (e) {
       console.error('[tour] navigation failed:', e)
       setErrorDetail(e instanceof Error ? `${e.name}: ${e.message}` : String(e))
@@ -138,7 +163,26 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     } finally {
       transitioningRef.current = false
       setNavigating(false)
+      setRetrying(false)
     }
+  }
+
+  // טעינה מוקדמת (ברקע) של החדרים שאליהם מובילות נקודות הניווט בחדר
+  // הנוכחי — כך הם כבר נמצאים במטמון הדפדפן כשעוברים אליהם, גם בחיבור
+  // חלש. מתעלמים מכשלים (זה אופציונלי).
+  function prefetchNeighbors(scene: TourScene) {
+    const targets = new Set(
+      (scene.hotspots ?? []).map((h) => h.target_scene_id),
+    )
+    targets.forEach((id) => {
+      const dest = scenes.find((s) => s.id === id)
+      if (!dest || prefetchedRef.current.has(dest.image_url)) return
+      prefetchedRef.current.add(dest.image_url)
+      fetch(dest.image_url, { mode: 'cors', cache: 'force-cache' }).catch(() => {
+        // נכשל? מסירים מהסט כדי שננסה שוב בהזדמנות הבאה
+        prefetchedRef.current.delete(dest.image_url)
+      })
+    })
   }
 
   useEffect(() => {
@@ -172,6 +216,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         currentSceneRef.current = scenes[0]
         setCurrentId(scenes[0].id)
         renderHotspots(scenes[0])
+        prefetchNeighbors(scenes[0])
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -328,7 +373,9 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
           <span className="flex items-center gap-2.5 rounded-full bg-carbon/70 px-4 py-2.5 backdrop-blur-md">
             <span className="spinner inline-block h-4 w-4 rounded-full border-2 border-white/25 border-t-signal" />
-            <span className="text-caption font-medium text-paper">טוען חדר…</span>
+            <span className="text-caption font-medium text-paper">
+              {retrying ? 'החיבור איטי — מנסה שוב…' : 'טוען חדר…'}
+            </span>
           </span>
         </div>
       )}
@@ -344,7 +391,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
               לא הצלחנו לטעון את החדר
             </h3>
             <p className="mt-2 text-caption leading-relaxed text-paper/60">
-              ייתכן שהחיבור איטי או שהתמונה כבדה במיוחד. אפשר לנסות שוב.
+              נראה שיש בעיה זמנית בחיבור לאינטרנט. בדוק את הקליטה ונסה שוב.
             </p>
             {errorDetail && (
               <p
