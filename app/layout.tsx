@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/NavBar";
 import SmoothScroll from "@/components/SmoothScroll";
 import ScrollProgress from "@/components/ScrollProgress";
+import { NotificationProvider } from "@/components/ui/Notifications";
 
 // פונט מקומי — Discovery FS (כל 8 המשקלים), תומך עברית
 const discovery = localFont({
@@ -34,11 +35,13 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl" className={`${discovery.variable} antialiased`}>
       <body className="flex flex-col">
-        <SmoothScroll>
-          <ScrollProgress />
-          <NavBar />
-          {children}
-        </SmoothScroll>
+        <NotificationProvider>
+          <SmoothScroll>
+            <ScrollProgress />
+            <NavBar />
+            {children}
+          </SmoothScroll>
+        </NotificationProvider>
       </body>
     </html>
   );

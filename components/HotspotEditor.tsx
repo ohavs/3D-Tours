@@ -11,6 +11,8 @@ import '@photo-sphere-viewer/markers-plugin/index.css'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { X, MousePointerClick, Trash2, Check } from 'lucide-react'
 import { Spinner } from '@/components/anim'
+import { useNotify } from '@/components/ui/Notifications'
+import Select from '@/components/ui/Select'
 import type { TourScene, Hotspot } from '@/lib/types'
 
 interface Props {
@@ -49,6 +51,7 @@ function pendingSvg() {
 }
 
 export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Props) {
+  const { toast, confirm } = useNotify()
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [placing, setPlacing] = useState(false)
@@ -57,7 +60,7 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
   const [targetId, setTargetId] = useState('')
   const [label, setLabel] = useState('')
   const [saving, setSaving] = useState(false)
-  const [saveMsg, setSaveMsg] = useState('')
+  const [dirty, setDirty] = useState(false)
   const viewerRef = useRef<{ destroy: () => void } | null>(null)
   const markersRef = useRef<{ addMarker: (m: unknown) => void; removeMarker: (id: string) => void; updateMarker: (m: unknown) => void } | null>(null)
   const placingRef = useRef(false)
@@ -178,16 +181,24 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
     setPending(null)
     setTargetId('')
     setLabel('')
+    setDirty(true)
   }
 
-  function removeHotspot(id: string) {
-    try { markersRef.current?.removeMarker(`hs-${id}`) } catch { /**/ }
-    setHotspots((prev) => prev.filter((h) => h.id !== id))
+  async function removeHotspot(hs: Hotspot) {
+    const ok = await confirm({
+      title: 'למחוק נקודת ניווט?',
+      message: `הנקודה "${hs.text}" תוסר מהחדר הזה.`,
+      confirmLabel: 'מחק',
+      danger: true,
+    })
+    if (!ok) return
+    try { markersRef.current?.removeMarker(`hs-${hs.id}`) } catch { /**/ }
+    setHotspots((prev) => prev.filter((h) => h.id !== hs.id))
+    setDirty(true)
   }
 
   async function save() {
     setSaving(true)
-    setSaveMsg('')
     try {
       const res = await fetch(`/api/scenes/${scene.id}`, {
         method: 'PATCH',
@@ -196,15 +207,41 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
       })
       const json = await res.json()
       if (json.error) throw new Error(json.error)
-      setSaveMsg('נשמר!')
+      setDirty(false)
       onSaved({ ...scene, hotspots })
-      setTimeout(() => setSaveMsg(''), 2000)
+      toast('נקודות הניווט נשמרו', 'success')
     } catch (err) {
-      setSaveMsg(err instanceof Error ? err.message : 'שגיאה')
+      toast(err instanceof Error ? err.message : 'השמירה נכשלה', 'error')
     } finally {
       setSaving(false)
     }
   }
+
+  // יציאה — אם יש שינויים שלא נשמרו, מבקשים אישור
+  async function handleClose() {
+    if (dirty) {
+      const leave = await confirm({
+        title: 'לצאת בלי לשמור?',
+        message: 'יש שינויים בנקודות הניווט שלא נשמרו. אם תצא, הם יאבדו.',
+        confirmLabel: 'צא בלי לשמור',
+        cancelLabel: 'המשך עריכה',
+        danger: true,
+      })
+      if (!leave) return
+    }
+    onClose()
+  }
+
+  // אזהרת דפדפן בעת רענון/סגירת טאב עם שינויים
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (!dirty) return
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-carbon" dir="rtl">
@@ -214,19 +251,22 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
           נקודות ניווט — {scene.title}
         </span>
         <div className="flex items-center gap-2.5">
-          {saveMsg && (
-            <span className="text-caption font-medium text-signal">{saveMsg}</span>
+          {dirty && (
+            <span className="hidden items-center gap-1.5 text-caption font-medium text-paper/50 sm:flex">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal" />
+              שינויים שלא נשמרו
+            </span>
           )}
           <button
             onClick={save}
-            disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-full bg-signal px-4 py-2 text-caption font-semibold text-paper transition-opacity hover:opacity-85 disabled:opacity-50"
+            disabled={saving || !dirty}
+            className="inline-flex items-center gap-1.5 rounded-full bg-signal px-4 py-2 text-caption font-semibold text-paper transition-opacity hover:opacity-85 disabled:opacity-40"
           >
             {saving ? <Spinner className="h-4 w-4" /> : <Check size={15} />}
             שמור
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="flex h-9 w-9 items-center justify-center rounded-full text-paper/60 transition-colors hover:bg-white/10 hover:text-paper"
             aria-label="סגור"
           >
@@ -254,7 +294,7 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
                 כדי להגדיר נקודת ניווט צריך לפחות שני חדרים בסיור. סגור, העלה עוד תמונה ואז חזור לכאן.
               </p>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="mt-1 rounded-full bg-signal px-5 py-2 text-caption font-semibold text-paper transition-opacity hover:opacity-85"
               >
                 סגור והוסף חדר
@@ -281,18 +321,15 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
           {pending && (
             <div className="absolute bottom-6 right-6 z-20 w-72 rounded-2xl border border-white/10 bg-carbon/95 p-4 shadow-xl backdrop-blur-sm">
               <p className="text-caption font-semibold text-paper">לאיזה חדר תוביל הנקודה?</p>
-              <select
-                value={targetId}
-                onChange={(e) => setTargetId(e.target.value)}
-                className="mt-2 w-full rounded-lg bg-white/10 px-3 py-2 text-caption text-paper outline-none focus:ring-1 focus:ring-signal"
-              >
-                <option value="">בחר חדר…</option>
-                {targetScenes.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-2">
+                <Select
+                  theme="dark"
+                  value={targetId}
+                  onChange={setTargetId}
+                  placeholder="בחר חדר…"
+                  options={targetScenes.map((s) => ({ value: s.id, label: s.title }))}
+                />
+              </div>
               <input
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
@@ -341,7 +378,7 @@ export default function HotspotEditor({ scene, allScenes, onClose, onSaved }: Pr
                       <p className="truncate text-caption text-paper/50">→ {dest?.title ?? h.target_scene_id}</p>
                     </div>
                     <button
-                      onClick={() => removeHotspot(h.id)}
+                      onClick={() => removeHotspot(h)}
                       className="shrink-0 text-paper/40 transition-colors hover:text-signal"
                       aria-label="מחק"
                     >

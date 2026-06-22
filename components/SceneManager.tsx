@@ -10,6 +10,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { UploadCloud, Trash2, Navigation } from 'lucide-react'
 import { Spinner } from '@/components/anim'
+import { useNotify } from '@/components/ui/Notifications'
 import type { TourScene } from '@/lib/types'
 import HotspotEditor from '@/components/HotspotEditor'
 
@@ -40,6 +41,7 @@ export default function SceneManager({
   initialScenes: TourScene[]
 }) {
   const router = useRouter()
+  const { toast, confirm } = useNotify()
   const [scenes, setScenes] = useState<TourScene[]>(initialScenes)
   const [busy, setBusy] = useState(false)
   const [progress, setProgress] = useState({ current: 0, total: 0 })
@@ -94,8 +96,16 @@ export default function SceneManager({
         }
       }
       setScenes((prev) => [...prev, ...added])
+      if (added.length > 0) {
+        toast(
+          added.length === 1 ? 'החדר נוסף בהצלחה' : `${added.length} חדרים נוספו`,
+          'success',
+        )
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'העלאה נכשלה')
+      const msg = err instanceof Error ? err.message : 'העלאה נכשלה'
+      setError(msg)
+      toast(msg, 'error')
     } finally {
       setBusy(false)
       setProgress({ current: 0, total: 0 })
@@ -111,10 +121,17 @@ export default function SceneManager({
     router.refresh()
   }
 
-  async function remove(id: string) {
-    if (!confirm('למחוק את החדר הזה?')) return
-    await fetch(`/api/scenes/${id}`, { method: 'DELETE' })
-    setScenes((prev) => prev.filter((s) => s.id !== id))
+  async function remove(scene: TourScene) {
+    const ok = await confirm({
+      title: 'למחוק את החדר?',
+      message: `"${scene.title}" יימחק לצמיתות, יחד עם התמונה ונקודות הניווט שלו. לא ניתן לבטל פעולה זו.`,
+      confirmLabel: 'מחק חדר',
+      danger: true,
+    })
+    if (!ok) return
+    await fetch(`/api/scenes/${scene.id}`, { method: 'DELETE' })
+    setScenes((prev) => prev.filter((s) => s.id !== scene.id))
+    toast('החדר נמחק', 'success')
   }
 
   function onHotspotsSaved(updated: TourScene) {
@@ -249,7 +266,7 @@ export default function SceneManager({
                   </div>
 
                   <button
-                    onClick={() => remove(s.id)}
+                    onClick={() => remove(s)}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal"
                     aria-label="מחק"
                   >

@@ -37,6 +37,8 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
   const galleryPluginRef = useRef<{ setItems: (items: unknown[]) => void } | null>(null)
   const currentSceneRef = useRef<TourScene | null>(null)
 
+  const transitioningRef = useRef(false)
+
   function renderHotspots(scene: TourScene) {
     const mp = markersPluginRef.current
     if (!mp) return
@@ -51,9 +53,36 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         size: { width: 56, height: 56 },
         anchor: 'center',
         tooltip: dest ? `עבור אל: ${dest.title}` : h.text,
-        data: { targetSceneId: h.target_scene_id },
+        // שומרים את כיוון הנקודה כדי "לצעוד" לכיוונה במעבר
+        data: { targetSceneId: h.target_scene_id, yaw: h.yaw, pitch: h.pitch },
       })
     })
+  }
+
+  // מעבר בסגנון Street View: מזמינים את המצלמה לתוך הנקודה (zoom-in
+  // לכיוון התנועה) ואז מבצעים crossfade לחדר הבא תוך משיכת הזום החוצה —
+  // כך נוצרת תחושת "המשכיות" ולא פשוט fade-out / fade-in.
+  async function navigateTo(target: TourScene, yaw: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const viewer = viewerRef.current as any
+    if (!viewer || transitioningRef.current) return
+    transitioningRef.current = true
+    try {
+      // 1) "צעד קדימה" — מסתובבים לכיוון הנקודה ומתקרבים
+      await viewer.animate({ yaw, pitch: 0, zoom: 72, speed: 450 })
+      // 2) crossfade לחדר הבא, מתחילים מעט מקורבים וחוזרים לזום רגיל
+      await viewer.setPanorama(target.image_url, {
+        caption: target.title,
+        position: { yaw, pitch: 0 },
+        zoom: 50,
+        transition: { effect: 'fade', rotation: false, speed: 900 },
+        showLoader: true,
+      })
+      currentSceneRef.current = target
+      renderHotspots(target)
+    } finally {
+      transitioningRef.current = false
+    }
   }
 
   useEffect(() => {
@@ -119,17 +148,14 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         }
       })
 
-      // hotspot click → navigate to target scene
+      // hotspot click → "step" into the target scene (Street View feel)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       markers?.addEventListener('select-marker', (e: any) => {
-        const targetId = e.marker.data?.targetSceneId
-        if (!targetId) return
-        const target = scenes.find((s) => s.id === targetId)
+        const data = e.marker.data
+        if (!data?.targetSceneId) return
+        const target = scenes.find((s) => s.id === data.targetSceneId)
         if (!target) return
-        viewer.setPanorama(target.image_url, { caption: target.title }).then(() => {
-          currentSceneRef.current = target
-          renderHotspots(target)
-        })
+        navigateTo(target, data.yaw ?? 0)
       })
     })()
 

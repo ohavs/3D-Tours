@@ -9,9 +9,11 @@
 // ============================================================
 
 import Link from 'next/link'
+import { ArrowRight, LayoutGrid } from 'lucide-react'
 import TourViewer from '@/components/TourViewer'
 import SceneViewer from '@/components/SceneViewer'
 import { createServiceClient } from '@/lib/supabase'
+import { isAuthed } from '@/lib/auth'
 import type { TourNode, TourScene } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -88,6 +90,7 @@ export default async function TourPage({
   // מנסים לטעון סיור אמיתי מהמסד לפי ה-slug; אם אין — נופלים לדמו.
   let title = 'סיור לדוגמה'
   let scenes: TourScene[] = []
+  let tourId: string | null = null
   try {
     const supabase = createServiceClient()
     const { data: tour } = await supabase
@@ -97,6 +100,7 @@ export default async function TourPage({
       .single()
     if (tour && tour.is_public) {
       title = tour.title
+      tourId = tour.id
       const { data: sc } = await supabase
         .from('tour_scenes')
         .select('*')
@@ -108,6 +112,9 @@ export default async function TourPage({
     /* אין חיבור/סיור — נציג את הדמו */
   }
 
+  // רק הבעלים מחובר; אם כן — נציג כפתור חזרה לניהול
+  const admin = await isAuthed()
+
   // h-[100dvh] = גובה מלא של המסך (גם במובייל)
   return (
     <main className="flex h-[100dvh] flex-col">
@@ -115,12 +122,24 @@ export default async function TourPage({
         <h1 className="font-display text-subheading font-semibold text-ink">
           {title}
         </h1>
-        <Link
-          href="/"
-          className="flex items-center gap-1 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
-        >
-          <span aria-hidden>→</span> חזרה לאתר
-        </Link>
+        <div className="flex items-center gap-2">
+          {admin && (
+            <Link
+              href={tourId ? `/admin/tour/${tourId}` : '/admin'}
+              className="flex items-center gap-1.5 rounded-full border border-slate/25 px-4 py-2 text-caption font-medium text-ink transition-colors hover:bg-mist"
+            >
+              <LayoutGrid size={15} />
+              חזרה לניהול
+            </Link>
+          )}
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
+          >
+            <ArrowRight size={15} />
+            חזרה לאתר
+          </Link>
+        </div>
       </header>
 
       {/* הViewer — סיור אמיתי מהמסד אם יש סצנות, אחרת הדמו */}
