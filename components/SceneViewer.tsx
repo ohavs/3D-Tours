@@ -53,6 +53,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
   const [isMobile, setIsMobile] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
   const [errorTarget, setErrorTarget] = useState<TourScene | null>(null)
+  const [errorDetail, setErrorDetail] = useState('')
 
   useEffect(() => setIsMobile(isMobileDevice()), [])
 
@@ -91,40 +92,48 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     if (target.id === currentSceneRef.current?.id) return
     transitioningRef.current = true
     setErrorTarget(null)
+    setErrorDetail('')
     setNavigating(true)
     if (isMobileDevice()) setRailOpen(false)
     const yaw = opts.yaw ?? 0
+    const mobile = isMobileDevice()
+    const pos = opts.directional ? { position: { yaw, pitch: 0 } } : {}
     try {
-      if (isMobileDevice()) {
-        // מובייל — fade חלק (התמונות מוקטנות ל-4096 אז שתי טקסטורות
-        // נכנסות בנוחות לזיכרון). בלי ה-zoom המקדים כדי לשמור על חלקות.
+      try {
+        // נתיב "יפה": בדסקטופ עם חץ — zoom-in ואז fade; אחרת fade בלבד
+        if (!mobile && opts.directional) {
+          await viewer.animate({ yaw, pitch: 0, zoom: 80, speed: 350 })
+          await viewer.setPanorama(target.image_url, {
+            caption: target.title,
+            position: { yaw, pitch: 0 },
+            zoom: 50,
+            transition: { effect: 'fade', rotation: false, speed: 700 },
+            showLoader: false,
+          })
+        } else {
+          await viewer.setPanorama(target.image_url, {
+            caption: target.title,
+            transition: { effect: 'fade', rotation: false, speed: 700 },
+            showLoader: false,
+            ...pos,
+          })
+        }
+      } catch (e1) {
+        // נפילה לנתיב הפשוט ביותר — בלי אנימציה/מעבר — אם ה"יפה" נכשל
+        console.error('[tour] primary load failed, retrying bare:', e1)
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
-          transition: { effect: 'fade', rotation: false, speed: 700 },
+          transition: false,
           showLoader: false,
-          ...(opts.directional ? { position: { yaw, pitch: 0 } } : {}),
-        })
-      } else if (opts.directional) {
-        await viewer.animate({ yaw, pitch: 0, zoom: 80, speed: 350 })
-        await viewer.setPanorama(target.image_url, {
-          caption: target.title,
-          position: { yaw, pitch: 0 },
-          zoom: 50,
-          transition: { effect: 'fade', rotation: false, speed: 700 },
-          showLoader: false,
-        })
-      } else {
-        // בחירה מהתפריט — שומרים על כיוון/זום נוכחי, רק crossfade
-        await viewer.setPanorama(target.image_url, {
-          caption: target.title,
-          transition: { effect: 'fade', rotation: false, speed: 700 },
-          showLoader: false,
+          ...pos,
         })
       }
       currentSceneRef.current = target
       setCurrentId(target.id)
       renderHotspots(target)
-    } catch {
+    } catch (e) {
+      console.error('[tour] navigation failed:', e)
+      setErrorDetail(e instanceof Error ? `${e.name}: ${e.message}` : String(e))
       setErrorTarget(target)
     } finally {
       transitioningRef.current = false
@@ -165,12 +174,18 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         renderHotspots(scenes[0])
       })
 
-      viewer.addEventListener('panorama-error', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      viewer.addEventListener('panorama-error', (e: any) => {
         if (cancelled) return
         setLoading(false)
         // משתיקים את הודעת השגיאה המובנית של PSV — יש לנו משלנו
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         try { (viewer as any).overlay?.hide() } catch { /**/ }
+        const err = e?.error
+        console.error('[tour] panorama-error:', err, 'url:', e?.panorama)
+        setErrorDetail(
+          err instanceof Error ? `${err.name}: ${err.message}` : String(err ?? 'load error'),
+        )
         // אם אין סצנה נוכחית עדיין — מדובר בכשל בטעינה הראשונית
         setErrorTarget(currentSceneRef.current ?? scenes[0])
       })
@@ -331,6 +346,14 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
             <p className="mt-2 text-caption leading-relaxed text-paper/60">
               ייתכן שהחיבור איטי או שהתמונה כבדה במיוחד. אפשר לנסות שוב.
             </p>
+            {errorDetail && (
+              <p
+                dir="ltr"
+                className="mt-3 max-h-24 overflow-auto break-words rounded-lg bg-black/30 px-3 py-2 text-left text-[11px] leading-snug text-paper/45"
+              >
+                {errorDetail}
+              </p>
+            )}
             <button
               onClick={() => navigateTo(errorTarget)}
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-signal px-6 py-2.5 text-caption font-semibold text-paper transition-opacity hover:opacity-85"
