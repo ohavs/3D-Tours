@@ -10,7 +10,11 @@
 
 import Link from 'next/link'
 import TourViewer from '@/components/TourViewer'
-import type { TourNode } from '@/lib/types'
+import SceneViewer from '@/components/SceneViewer'
+import { createServiceClient } from '@/lib/supabase'
+import type { TourNode, TourScene } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
 
 const BASE = 'https://photo-sphere-viewer-data.netlify.app/assets/tour/'
 
@@ -81,29 +85,51 @@ export default async function TourPage({
 }) {
   const { id } = await params
 
-  // h-[100dvh] = גובה מלא של המסך (גם במובייל), כדי שלViewer
-  // תמיד יהיה גובה אמיתי לצייר בתוכו.
+  // מנסים לטעון סיור אמיתי מהמסד לפי ה-slug; אם אין — נופלים לדמו.
+  let title = 'סיור לדוגמה'
+  let scenes: TourScene[] = []
+  try {
+    const supabase = createServiceClient()
+    const { data: tour } = await supabase
+      .from('tours')
+      .select('id, title, is_public')
+      .eq('slug', id)
+      .single()
+    if (tour && tour.is_public) {
+      title = tour.title
+      const { data: sc } = await supabase
+        .from('tour_scenes')
+        .select('*')
+        .eq('tour_id', tour.id)
+        .order('order_index', { ascending: true })
+      scenes = (sc as TourScene[]) ?? []
+    }
+  } catch {
+    /* אין חיבור/סיור — נציג את הדמו */
+  }
+
+  // h-[100dvh] = גובה מלא של המסך (גם במובייל)
   return (
     <main className="flex h-[100dvh] flex-col">
-      {/* פס עליון לבן נקי (סגנון Steep) */}
       <header className="flex items-center justify-between border-b border-dove/40 bg-pure-white px-5 py-3">
         <h1 className="font-display text-subheading font-semibold text-ink">
-          סיור לדוגמה
+          {title}
         </h1>
-        <div className="flex items-center gap-4">
-          <span className="text-caption text-graphite">מזהה: {id}</span>
-          <Link
-            href="/"
-            className="flex items-center gap-1 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
-          >
-            <span aria-hidden>→</span> חזרה לאתר
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center gap-1 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
+        >
+          <span aria-hidden>→</span> חזרה לאתר
+        </Link>
       </header>
 
-      {/* הViewer עצמו — תופס את כל שאר המסך */}
+      {/* הViewer — סיור אמיתי מהמסד אם יש סצנות, אחרת הדמו */}
       <div className="relative min-h-0 flex-1">
-        <TourViewer nodes={TOUR_NODES} startNodeId="1" />
+        {scenes.length > 0 ? (
+          <SceneViewer scenes={scenes} />
+        ) : (
+          <TourViewer nodes={TOUR_NODES} startNodeId="1" />
+        )}
       </div>
     </main>
   )

@@ -95,17 +95,25 @@ export default async function AdminPage() {
               key={t.id}
               className="flex items-center justify-between gap-4 p-5 transition-colors hover:bg-fog"
             >
-              <div>
-                <p className="text-body font-semibold text-carbon">{t.title}</p>
+              <Link href={`/admin/tour/${t.id}`} className="min-w-0">
+                <p className="truncate text-body font-semibold text-carbon">{t.title}</p>
                 <p className="text-caption text-graphite" dir="ltr">/tour/{t.slug}</p>
-              </div>
-              <Link
-                href={`/tour/${t.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate/25 px-4 py-2 text-caption font-medium text-carbon transition-colors hover:bg-mist"
-              >
-                צפייה
-                <ExternalLink size={15} />
               </Link>
+              <div className="flex shrink-0 items-center gap-2">
+                <Link
+                  href={`/admin/tour/${t.id}`}
+                  className="rounded-full bg-carbon px-4 py-2 text-caption font-medium text-paper transition-opacity hover:opacity-85"
+                >
+                  עריכה
+                </Link>
+                <Link
+                  href={`/tour/${t.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate/25 px-4 py-2 text-caption font-medium text-carbon transition-colors hover:bg-mist"
+                >
+                  צפייה
+                  <ExternalLink size={15} />
+                </Link>
+              </div>
             </div>
           ))}
         </div>
