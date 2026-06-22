@@ -38,6 +38,24 @@ function isMobileDevice() {
   return window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768
 }
 
+// פנורמה "ריקה" זעירה (2×1) ברקע כהה. במובייל מחליפים אליה לרגע לפני
+// טעינת החדר הבא, כדי לשחרר את הטקסטורה הכבדה הקודמת — כך מחזיקים רק
+// תמונת-ענק אחת בזיכרון בכל רגע ונמנעים מכשל טעינה.
+let _blankPano = ''
+function blankPanorama() {
+  if (_blankPano) return _blankPano
+  const c = document.createElement('canvas')
+  c.width = 2
+  c.height = 1
+  const ctx = c.getContext('2d')
+  if (ctx) {
+    ctx.fillStyle = '#202020'
+    ctx.fillRect(0, 0, 2, 1)
+  }
+  _blankPano = c.toDataURL('image/png')
+  return _blankPano
+}
+
 export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<PSViewer | null>(null)
@@ -47,6 +65,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
   const transitioningRef = useRef(false)
 
   const [loading, setLoading] = useState(true)
+  const [navigating, setNavigating] = useState(false)
   const [currentId, setCurrentId] = useState(scenes[0]?.id ?? '')
   const [railOpen, setRailOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -90,15 +109,21 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     if (target.id === currentSceneRef.current?.id) return
     transitioningRef.current = true
     setErrorTarget(null)
+    setNavigating(true)
     if (isMobileDevice()) setRailOpen(false)
     const yaw = opts.yaw ?? 0
     try {
       if (isMobileDevice()) {
-        // מובייל — מעבר קל; ביישור כיוון רק כשמדובר בחץ
+        // מובייל — קודם משחררים את הטקסטורה הקודמת (החלפה לפנורמה ריקה),
+        // ואז טוענים את החדר. כך מחזיקים רק תמונת-ענק אחת בזיכרון.
+        await viewer.setPanorama(blankPanorama(), {
+          transition: false,
+          showLoader: false,
+        })
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
           transition: false,
-          showLoader: true,
+          showLoader: false,
           ...(opts.directional ? { position: { yaw, pitch: 0 } } : {}),
         })
       } else if (opts.directional) {
@@ -108,14 +133,14 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
           position: { yaw, pitch: 0 },
           zoom: 50,
           transition: { effect: 'fade', rotation: false, speed: 700 },
-          showLoader: true,
+          showLoader: false,
         })
       } else {
         // בחירה מהתפריט — שומרים על כיוון/זום נוכחי, רק crossfade
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
           transition: { effect: 'fade', rotation: false, speed: 700 },
-          showLoader: true,
+          showLoader: false,
         })
       }
       currentSceneRef.current = target
@@ -125,6 +150,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
       setErrorTarget(target)
     } finally {
       transitioningRef.current = false
+      setNavigating(false)
     }
   }
 
@@ -296,12 +322,30 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         </div>
       )}
 
-      {/* טעינה */}
+      {/* טעינה ראשונית */}
       {loading && (
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 bg-carbon">
           <span className="spinner inline-block h-8 w-8 rounded-full border-2 border-white/20 border-t-paper" />
           <span className="text-caption text-paper/60">טוען סיור…</span>
         </div>
+      )}
+
+      {/* מעבר בין חדרים. במובייל — כיסוי מלא שמסתיר את ההחלפה הזמנית.
+          בדסקטופ — אינדיקטור עדין שלא חוסם את ה-crossfade. */}
+      {navigating && !loading && (
+        isMobile ? (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 bg-carbon">
+            <span className="spinner inline-block h-8 w-8 rounded-full border-2 border-white/20 border-t-signal" />
+            <span className="text-caption text-paper/70">טוען חדר…</span>
+          </div>
+        ) : (
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2">
+            <span className="flex items-center gap-2.5 rounded-full bg-carbon/70 px-4 py-2.5 backdrop-blur-md">
+              <span className="spinner inline-block h-4 w-4 rounded-full border-2 border-white/25 border-t-signal" />
+              <span className="text-caption font-medium text-paper">טוען חדר…</span>
+            </span>
+          </div>
+        )
       )}
 
       {/* שגיאה — מעוצבת, בעברית */}
