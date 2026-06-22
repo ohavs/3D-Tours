@@ -14,6 +14,44 @@ import { useNotify } from '@/components/ui/Notifications'
 import type { TourScene } from '@/lib/types'
 import HotspotEditor from '@/components/HotspotEditor'
 
+// מורידים ברזולוציה תמונות פנורמה ענקיות לפני העלאה. תמונות 360°
+// יוצאות מהמצלמה בגדלים אדירים (למשל 11904 פיקסל רוחב) שחורגים
+// ממגבלת הטקסטורה של מכשירים ניידים → "panorama cannot be loaded".
+// קיצור ל-4096 רוחב נטען בכל מכשיר ושומר על איכות מצוינת לסיור.
+const MAX_PANORAMA_WIDTH = 4096
+
+async function downscalePanorama(
+  file: File,
+): Promise<{ blob: Blob; type: string }> {
+  // רק תמונות; אם משהו משתבש — מעלים את הקובץ המקורי
+  if (!file.type.startsWith('image/')) return { blob: file, type: file.type }
+  try {
+    const bitmap = await createImageBitmap(file)
+    if (bitmap.width <= MAX_PANORAMA_WIDTH) {
+      bitmap.close?.()
+      return { blob: file, type: file.type }
+    }
+    const targetW = MAX_PANORAMA_WIDTH
+    const targetH = Math.round((bitmap.height * MAX_PANORAMA_WIDTH) / bitmap.width)
+    const canvas = document.createElement('canvas')
+    canvas.width = targetW
+    canvas.height = targetH
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      bitmap.close?.()
+      return { blob: file, type: file.type }
+    }
+    ctx.drawImage(bitmap, 0, 0, targetW, targetH)
+    bitmap.close?.()
+    const blob = await new Promise<Blob | null>((res) =>
+      canvas.toBlob(res, 'image/jpeg', 0.9),
+    )
+    return blob ? { blob, type: 'image/jpeg' } : { blob: file, type: file.type }
+  } catch {
+    return { blob: file, type: file.type }
+  }
+}
+
 // Shimmer placeholder while an image loads from R2
 function ImageCard({ scene, onImgLoad }: { scene: TourScene; onImgLoad: (id: string) => void }) {
   const [loaded, setLoaded] = useState(false)
@@ -62,19 +100,22 @@ export default function SceneManager({
         const file = files[i]
         setProgress({ current: i + 1, total: files.length })
 
+        // 0) קיצור רזולוציה למובייל-תאימות (ראה הערה למעלה)
+        const { blob, type } = await downscalePanorama(file)
+
         // 1) presigned URL
         const pres = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tourId, contentType: file.type }),
+          body: JSON.stringify({ tourId, contentType: type }),
         }).then((r) => r.json())
         if (!pres.uploadUrl) throw new Error(pres.error || 'יצירת העלאה נכשלה')
 
         // 2) upload directly to R2
         const put = await fetch(pres.uploadUrl, {
           method: 'PUT',
-          headers: { 'Content-Type': file.type },
-          body: file,
+          headers: { 'Content-Type': type },
+          body: blob,
         })
         if (!put.ok) throw new Error('העלאה ל-R2 נכשלה (בדוק CORS)')
 

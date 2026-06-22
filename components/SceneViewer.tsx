@@ -23,16 +23,13 @@ import {
 } from 'lucide-react'
 import type { TourScene } from '@/lib/types'
 
-// חץ ניווט (hotspot) — עיגול כתום עם חץ
-function arrowSvg(label: string) {
-  const escaped = label.replace(/[<>&"]/g, (c) =>
-    ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] ?? c),
-  )
+// חץ ניווט (hotspot) — עיגול כתום עם חץ (בלי <title> כדי לא ליצור
+// tooltip כפול של הדפדפן; ה-tooltip המעוצב מגיע מ-PSV)
+function arrowSvg() {
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="58" height="58" viewBox="0 0 58 58">
   <circle cx="29" cy="29" r="25" fill="rgba(255,104,44,0.9)" stroke="white" stroke-width="2.5"/>
   <path d="M29 18 l9 11 h-6 v10 h-6 V29 h-6 z" fill="white"/>
-  <title>${escaped}</title>
 </svg>`
 }
 
@@ -67,19 +64,26 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
       mp.addMarker({
         id: `hs-${h.id}`,
         position: { pitch: h.pitch, yaw: h.yaw },
-        html: arrowSvg(h.text),
+        html: arrowSvg(),
         size: { width: 58, height: 58 },
         anchor: 'center',
-        tooltip: dest ? `עבור אל: ${dest.title}` : h.text,
+        tooltip: dest ? dest.title : h.text,
         data: { targetSceneId: h.target_scene_id, yaw: h.yaw },
       })
     })
   }
 
-  // מעבר בין חדרים. בדסקטופ: "צעד" קדימה (zoom-in לכיוון התנועה) ואז
-  // crossfade. במובייל: מעבר חסכוני בזיכרון (בלי להחזיק שתי תמונות
-  // ענקיות בו-זמנית) כדי למנוע כשל טעינה.
-  async function navigateTo(target: TourScene, yaw = 0) {
+  // מעבר בין חדרים.
+  // directional=true (לחיצה על חץ): "צעד" קדימה — מסתובבים לכיוון הנקודה
+  //   ומתקרבים, ואז crossfade. כך נשמרת תחושת הכיוון.
+  // directional=false (בחירה מהתפריט): שומרים על כיוון המבט הנוכחי
+  //   ופשוט עוברים בעדינות — בלי "ליישר" את המצלמה.
+  // במובייל: מעבר חסכוני בזיכרון (בלי להחזיק שתי תמונות ענקיות
+  //   בו-זמנית) כדי למנוע כשל טעינה.
+  async function navigateTo(
+    target: TourScene,
+    opts: { yaw?: number; directional?: boolean } = {},
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const viewer = viewerRef.current as any
     if (!viewer || transitioningRef.current) return
@@ -87,19 +91,29 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
     transitioningRef.current = true
     setErrorTarget(null)
     if (isMobileDevice()) setRailOpen(false)
+    const yaw = opts.yaw ?? 0
     try {
       if (isMobileDevice()) {
+        // מובייל — מעבר קל; ביישור כיוון רק כשמדובר בחץ
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
           transition: false,
           showLoader: true,
+          ...(opts.directional ? { position: { yaw, pitch: 0 } } : {}),
         })
-      } else {
+      } else if (opts.directional) {
         await viewer.animate({ yaw, pitch: 0, zoom: 80, speed: 350 })
         await viewer.setPanorama(target.image_url, {
           caption: target.title,
           position: { yaw, pitch: 0 },
           zoom: 50,
+          transition: { effect: 'fade', rotation: false, speed: 700 },
+          showLoader: true,
+        })
+      } else {
+        // בחירה מהתפריט — שומרים על כיוון/זום נוכחי, רק crossfade
+        await viewer.setPanorama(target.image_url, {
+          caption: target.title,
           transition: { effect: 'fade', rotation: false, speed: 700 },
           showLoader: true,
         })
@@ -150,6 +164,9 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
       viewer.addEventListener('panorama-error', () => {
         if (cancelled) return
         setLoading(false)
+        // משתיקים את הודעת השגיאה המובנית של PSV — יש לנו משלנו
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        try { (viewer as any).overlay?.hide() } catch { /**/ }
         // אם אין סצנה נוכחית עדיין — מדובר בכשל בטעינה הראשונית
         setErrorTarget(currentSceneRef.current ?? scenes[0])
       })
@@ -165,7 +182,7 @@ export default function SceneViewer({ scenes }: { scenes: TourScene[] }) {
         const data = e.marker?.data
         if (!data?.targetSceneId) return
         const target = scenes.find((s) => s.id === data.targetSceneId)
-        if (target) navigateTo(target, data.yaw ?? 0)
+        if (target) navigateTo(target, { yaw: data.yaw ?? 0, directional: true })
       })
     })()
 
