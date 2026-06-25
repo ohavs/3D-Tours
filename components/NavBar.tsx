@@ -10,6 +10,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const LINKS = [
   { id: 'service', label: 'השירות' },
@@ -45,10 +46,13 @@ export default function NavBar() {
 
   return (
     <div className="sticky top-4 z-50 flex justify-center px-4">
-      <nav className="flex items-center gap-1 rounded-full border border-slate/30 bg-paper/90 p-1.5 pr-4 shadow-soft backdrop-blur-md">
+      <nav className="flex items-center gap-1 rounded-full border border-border bg-surface/85 p-1.5 pr-3 shadow-soft backdrop-blur-md">
         {/* wordmark */}
-        <Link href="/" className="px-3 text-[20px] font-extrabold tracking-tight text-carbon">
-          tour<span className="text-signal">.</span>360
+        <Link
+          href="/"
+          className="px-3 text-[20px] font-extrabold tracking-tight text-foreground"
+        >
+          tour<span className="text-accent">.</span>360
         </Link>
 
         {/* קישורים עם הדגשת הסקשן הפעיל */}
@@ -59,8 +63,8 @@ export default function NavBar() {
               href={`#${l.id}`}
               className={`rounded-full px-3.5 py-2 text-caption font-medium transition-colors ${
                 active === l.id
-                  ? 'bg-chalk font-semibold text-carbon'
-                  : 'text-graphite hover:text-carbon'
+                  ? 'bg-muted font-semibold text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {l.label}
@@ -68,10 +72,12 @@ export default function NavBar() {
           ))}
         </div>
 
-        {/* כפתור */}
+        <ThemeToggle className="ml-1" />
+
+        {/* כפתור — היפוך צבעים אדיטוריאלי (שחור בבהיר, לבן בכהה) */}
         <Link
           href="/tour/test"
-          className="ml-1 rounded-full bg-carbon px-5 py-2.5 text-caption font-semibold text-paper transition-opacity hover:opacity-85"
+          className="ml-1 rounded-full bg-foreground px-5 py-2.5 text-caption font-semibold text-background transition-opacity hover:opacity-85"
         >
           סיור לדוגמה
         </Link>
