@@ -17,22 +17,26 @@ export default function Faq({ items }: { items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
-    <div className="divide-y divide-slate/20 border-y border-slate/20">
+    <div className="divide-y divide-border border-y border-border">
       {items.map((item, i) => {
         const isOpen = open === i
         return (
           <div key={i}>
             <button
               onClick={() => setOpen(isOpen ? null : i)}
-              className="flex w-full items-center justify-between gap-4 py-6 text-right"
+              className="group flex w-full items-center justify-between gap-4 py-6 text-right"
             >
-              <span className="text-subheading font-bold text-carbon">
+              <span
+                className={`text-subheading font-bold transition-colors ${
+                  isOpen ? 'text-accent' : 'text-foreground group-hover:text-accent'
+                }`}
+              >
                 {item.q}
               </span>
               <motion.span
                 animate={{ rotate: isOpen ? 45 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="shrink-0 text-graphite"
+                className={`shrink-0 transition-colors ${isOpen ? 'text-accent' : 'text-muted-foreground'}`}
               >
                 <Plus size={24} />
               </motion.span>
@@ -46,7 +50,7 @@ export default function Faq({ items }: { items: FaqItem[] }) {
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="pb-6 text-body-lg text-graphite">{item.a}</p>
+                  <p className="pb-6 text-body-lg text-muted-foreground">{item.a}</p>
                 </motion.div>
               )}
             </AnimatePresence>
