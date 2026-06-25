@@ -196,7 +196,7 @@ export default function HomePage() {
       {/* ===================== מה מקבלים + קוד הטמעה ===================== */}
       <section className="mx-auto max-w-[1240px] px-6 pb-24">
         <div className="grid items-center gap-12 md:grid-cols-2">
-          <Reveal>
+          <Reveal className="min-w-0">
             <div>
               <h2 className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
                 לינק אחד.
@@ -209,8 +209,8 @@ export default function HomePage() {
               </p>
             </div>
           </Reveal>
-          <Reveal delay={0.12}>
-            <div className="rounded-2xl border border-border bg-surface p-6 shadow-soft">
+          <Reveal delay={0.12} className="min-w-0">
+            <div className="min-w-0 rounded-2xl border border-border bg-surface p-6 shadow-soft">
               <span className="text-caption font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 קוד הטמעה
               </span>
