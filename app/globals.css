@@ -151,6 +151,24 @@
   animation: spin 0.8s linear infinite;
 }
 
+/* Ken-Burns עדין ל-hero (תנועה מאוזנת) */
+@keyframes kenburns {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1.16);
+  }
+}
+.animate-kenburns {
+  animation: kenburns 20s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-kenburns {
+    animation: none;
+  }
+}
+
 /* ============================================================
    Photo Sphere Viewer — התאמה למערכת העיצוב (פונט האתר, pill נקי)
    ============================================================ */
