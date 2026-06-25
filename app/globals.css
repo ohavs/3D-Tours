@@ -104,7 +104,7 @@
   --text-display--line-height: 0.92;
   --text-display--letter-spacing: -3px;
   /* טיפוגרפיה ענקית רספונסיבית ל-hero אדיטוריאלי */
-  --text-mega: clamp(3rem, 11vw, 11rem);
+  --text-mega: clamp(2.5rem, 9vw, 9rem);
   --text-mega--line-height: 0.92;
   --text-mega--letter-spacing: -0.04em;
 
@@ -114,14 +114,26 @@
 }
 
 @layer base {
+  html {
+    /* מונע גלילה אופקית לא רצויה בלי לשבור sticky/Lenis */
+    overflow-x: clip;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: 1.55;
+    overflow-x: clip;
     /* מעבר עדין בין מצבים */
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  /* מדיה לא חורגת מרוחב המסך */
+  img,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
   }
   ::selection {
     background-color: var(--accent);
