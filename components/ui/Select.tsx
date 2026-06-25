@@ -61,16 +61,16 @@ export default function Select({
         className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-caption transition-colors ${
           dark
             ? 'bg-white/10 text-paper hover:bg-white/15'
-            : 'border border-slate/25 bg-paper text-carbon hover:border-carbon'
-        } ${open ? (dark ? 'ring-1 ring-signal' : 'border-carbon') : ''}`}
+            : 'border border-border bg-surface text-foreground hover:border-border-strong'
+        } ${open ? (dark ? 'ring-1 ring-accent' : 'border-border-strong') : ''}`}
       >
-        <span className={selected ? '' : dark ? 'text-paper/40' : 'text-slate'}>
+        <span className={selected ? '' : dark ? 'text-paper/40' : 'text-muted-foreground'}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown
           size={16}
           className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''} ${
-            dark ? 'text-paper/60' : 'text-slate'
+            dark ? 'text-paper/60' : 'text-muted-foreground'
           }`}
         />
       </button>
@@ -86,11 +86,11 @@ export default function Select({
             className={`absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl p-1.5 shadow-card ${
               dark
                 ? 'border border-white/10 bg-[#2b2b2b]'
-                : 'border border-slate/15 bg-paper'
+                : 'border border-border bg-surface'
             }`}
           >
             {options.length === 0 && (
-              <li className={`px-3 py-2 text-caption ${dark ? 'text-paper/40' : 'text-slate'}`}>
+              <li className={`px-3 py-2 text-caption ${dark ? 'text-paper/40' : 'text-muted-foreground'}`}>
                 אין אפשרויות
               </li>
             )}
@@ -107,11 +107,11 @@ export default function Select({
                     className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-right text-caption transition-colors ${
                       dark
                         ? `text-paper hover:bg-white/10 ${active ? 'bg-white/10' : ''}`
-                        : `text-carbon hover:bg-mist ${active ? 'bg-mist' : ''}`
+                        : `text-foreground hover:bg-muted ${active ? 'bg-muted' : ''}`
                     }`}
                   >
                     <span className="truncate">{o.label}</span>
-                    {active && <Check size={15} className="shrink-0 text-signal" />}
+                    {active && <Check size={15} className="shrink-0 text-accent" />}
                   </button>
                 </li>
               )

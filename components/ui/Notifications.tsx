@@ -61,8 +61,8 @@ const TOAST_ICON = {
 
 const TOAST_ACCENT = {
   success: 'text-emerald-500',
-  error: 'text-signal',
-  info: 'text-carbon',
+  error: 'text-accent',
+  info: 'text-foreground',
 } as const
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
@@ -122,11 +122,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 12, scale: 0.96 }}
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-                className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-slate/15 bg-paper px-5 py-3.5 shadow-card"
+                className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-border bg-surface px-5 py-3.5 shadow-card"
                 dir="rtl"
               >
                 <Icon size={20} className={`shrink-0 ${TOAST_ACCENT[t.kind]}`} />
-                <span className="text-caption font-medium text-carbon">{t.message}</span>
+                <span className="text-caption font-medium text-foreground">{t.message}</span>
               </motion.div>
             )
           })}
@@ -145,7 +145,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           >
             {/* רקע כהה */}
             <div
-              className="absolute inset-0 bg-carbon/55 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
               onClick={() => closeConfirm(false)}
             />
 
@@ -157,27 +157,27 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 8 }}
               transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-sm rounded-3xl border border-slate/15 bg-paper p-7 shadow-card"
+              className="relative w-full max-w-sm rounded-3xl border border-border bg-surface p-7 shadow-card"
             >
               <div className="flex items-start gap-3.5">
                 {confirmState.danger && (
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-signal/10 text-signal">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
                     <AlertTriangle size={20} />
                   </span>
                 )}
                 <div className="min-w-0">
-                  <h3 className="font-display text-subheading font-bold leading-tight text-carbon">
+                  <h3 className="font-display text-subheading font-bold leading-tight text-foreground">
                     {confirmState.title}
                   </h3>
                   {confirmState.message && (
-                    <p className="mt-1.5 text-caption leading-relaxed text-graphite">
+                    <p className="mt-1.5 text-caption leading-relaxed text-muted-foreground">
                       {confirmState.message}
                     </p>
                   )}
                 </div>
                 <button
                   onClick={() => closeConfirm(false)}
-                  className="-mt-1 mr-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate transition-colors hover:bg-mist hover:text-carbon"
+                  className="-mt-1 mr-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   aria-label="סגור"
                 >
                   <X size={18} />
@@ -187,15 +187,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               <div className="mt-6 flex gap-2.5">
                 <button
                   onClick={() => closeConfirm(true)}
-                  className={`flex-1 rounded-full px-5 py-2.5 text-caption font-semibold text-paper transition-opacity hover:opacity-85 ${
-                    confirmState.danger ? 'bg-signal' : 'bg-carbon'
+                  className={`flex-1 rounded-full px-5 py-2.5 text-caption font-semibold transition-opacity hover:opacity-85 ${
+                    confirmState.danger ? 'bg-accent text-accent-foreground' : 'bg-foreground text-background'
                   }`}
                 >
                   {confirmState.confirmLabel ?? 'אישור'}
                 </button>
                 <button
                   onClick={() => closeConfirm(false)}
-                  className="flex-1 rounded-full border border-slate/25 px-5 py-2.5 text-caption font-semibold text-carbon transition-colors hover:bg-mist"
+                  className="flex-1 rounded-full border border-border px-5 py-2.5 text-caption font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   {confirmState.cancelLabel ?? 'ביטול'}
                 </button>

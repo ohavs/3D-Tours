@@ -118,15 +118,15 @@ export default async function TourPage({
   // h-[100dvh] = גובה מלא של המסך (גם במובייל)
   return (
     <main className="flex h-[100dvh] flex-col">
-      <header className="flex items-center justify-between border-b border-dove/40 bg-pure-white px-5 py-3">
-        <h1 className="font-display text-subheading font-semibold text-ink">
+      <header className="flex items-center justify-between border-b border-border bg-surface px-5 py-3">
+        <h1 className="font-display text-subheading font-semibold text-foreground">
           {title}
         </h1>
         <div className="flex items-center gap-2">
           {admin && (
             <Link
               href={tourId ? `/admin/tour/${tourId}` : '/admin'}
-              className="flex items-center gap-1.5 rounded-full border border-slate/25 px-4 py-2 text-caption font-medium text-ink transition-colors hover:bg-mist"
+              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-caption font-medium text-foreground transition-colors hover:bg-muted"
             >
               <LayoutGrid size={15} />
               חזרה לניהול
@@ -134,7 +134,7 @@ export default async function TourPage({
           )}
           <Link
             href="/"
-            className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-caption font-medium text-pure-white transition hover:opacity-90"
+            className="flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-caption font-medium text-background transition hover:opacity-90"
           >
             <ArrowRight size={15} />
             חזרה לאתר

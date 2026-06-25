@@ -62,9 +62,9 @@ async function downscalePanorama(
 function Thumb({ scene }: { scene: TourScene }) {
   const [loaded, setLoaded] = useState(false)
   return (
-    <div className="relative aspect-[16/10] w-full overflow-hidden bg-mist">
+    <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
       {!loaded && (
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-mist via-fog to-mist" />
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-subtle to-muted" />
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -260,8 +260,8 @@ export default function SceneManager({
         onDrop={onDrop}
         className={`relative flex cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl border-2 border-dashed p-12 text-center transition-colors ${
           dragOver
-            ? 'border-signal bg-signal/5'
-            : 'border-slate/30 bg-paper hover:border-carbon'
+            ? 'border-accent bg-accent/5'
+            : 'border-border bg-surface hover:border-border-strong'
         } ${busy ? 'pointer-events-none' : ''}`}
       >
         <input
@@ -277,9 +277,9 @@ export default function SceneManager({
         />
 
         {busy && progress.total > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-mist">
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
             <div
-              className="h-full bg-signal transition-all duration-300"
+              className="h-full bg-accent transition-all duration-300"
               style={{ width: `${(progress.current / progress.total) * 100}%` }}
             />
           </div>
@@ -290,13 +290,13 @@ export default function SceneManager({
         ) : (
           <span
             className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-colors ${
-              dragOver ? 'bg-signal text-paper' : 'bg-mist text-carbon'
+              dragOver ? 'bg-accent text-white' : 'bg-muted text-foreground'
             }`}
           >
             <UploadCloud size={24} />
           </span>
         )}
-        <span className="text-body font-semibold text-carbon">
+        <span className="text-body font-semibold text-foreground">
           {busy
             ? progress.total > 1
               ? `מעלה ${progress.current} מתוך ${progress.total}…`
@@ -305,7 +305,7 @@ export default function SceneManager({
               ? 'שחרר כדי להעלות'
               : 'העלאת תמונות 360°'}
         </span>
-        <span className="text-caption text-graphite">
+        <span className="text-caption text-muted-foreground">
           {busy
             ? 'אנא המתן, מקטינים ומעלים את התמונות'
             : 'גרור תמונות לכאן או לחץ לבחירה (אפשר כמה יחד)'}
@@ -315,20 +315,20 @@ export default function SceneManager({
       {/* רשימת החדרים */}
       <div className="mt-9">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-subheading font-bold text-carbon">
+          <h2 className="font-display text-subheading font-bold text-foreground">
             החדרים בסיור
-            <span className="mr-2 text-graphite">{scenes.length}</span>
+            <span className="mr-2 text-muted-foreground">{scenes.length}</span>
           </h2>
           {scenes.length >= 2 && (
-            <p className="hidden text-caption text-graphite sm:block">
+            <p className="hidden text-caption text-muted-foreground sm:block">
               גרור כרטיסים כדי לשנות סדר · הראשון הוא נקודת הכניסה
             </p>
           )}
         </div>
 
         {scenes.length === 0 ? (
-          <div className="mt-4 rounded-3xl border border-dashed border-slate/25 bg-fog/50 p-10 text-center">
-            <p className="text-body text-graphite">
+          <div className="mt-4 rounded-3xl border border-dashed border-border bg-muted/50 p-10 text-center">
+            <p className="text-body text-muted-foreground">
               עדיין אין חדרים. העלה תמונת 360° כדי להתחיל.
             </p>
           </div>
@@ -348,17 +348,17 @@ export default function SceneManager({
                     dragIndex.current = null
                     setOverIndex(null)
                   }}
-                  className={`group relative overflow-hidden rounded-2xl border bg-paper transition-all ${
+                  className={`group relative overflow-hidden rounded-2xl border bg-surface transition-all ${
                     overIndex === i
-                      ? 'border-signal ring-2 ring-signal/30'
-                      : 'border-slate/15'
+                      ? 'border-accent ring-2 ring-accent/30'
+                      : 'border-border'
                   } ${isDeleting ? 'opacity-60' : ''}`}
                 >
                   {/* מחיקה בתהליך */}
                   {isDeleting && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-paper/80 backdrop-blur-sm">
-                      <Loader2 size={24} className="animate-spin text-signal" />
-                      <span className="text-caption font-medium text-carbon">מוחק…</span>
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-surface/80 backdrop-blur-sm">
+                      <Loader2 size={24} className="animate-spin text-accent" />
+                      <span className="text-caption font-medium text-foreground">מוחק…</span>
                     </div>
                   )}
 
@@ -367,13 +367,13 @@ export default function SceneManager({
                     <Thumb scene={s} />
 
                     {/* ידית גרירה */}
-                    <span className="absolute right-2 top-2 flex h-8 w-8 cursor-grab items-center justify-center rounded-lg bg-carbon/55 text-paper opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 active:cursor-grabbing">
+                    <span className="absolute right-2 top-2 flex h-8 w-8 cursor-grab items-center justify-center rounded-lg bg-carbon/55 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 active:cursor-grabbing">
                       <GripVertical size={16} />
                     </span>
 
                     {/* תגית חדר ראשון */}
                     {isFirst && (
-                      <span className="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-full bg-signal px-3 py-1 text-[12px] font-semibold text-paper shadow-soft">
+                      <span className="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[12px] font-semibold text-white shadow-soft">
                         <Home size={13} />
                         חדר ראשון
                       </span>
@@ -390,7 +390,7 @@ export default function SceneManager({
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
                       }}
-                      className="min-w-0 flex-1 rounded-lg border border-transparent bg-fog px-3 py-2 text-caption font-medium text-carbon outline-none transition-colors focus:border-carbon focus:bg-paper"
+                      className="min-w-0 flex-1 rounded-lg border border-transparent bg-muted px-3 py-2 text-caption font-medium text-foreground outline-none transition-colors focus:border-border-strong focus:bg-surface"
                     />
 
                     <div className="group/btn relative">
@@ -399,20 +399,20 @@ export default function SceneManager({
                         disabled={!canAddHotspots}
                         className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
                           canAddHotspots
-                            ? 'text-graphite hover:bg-mist hover:text-signal'
-                            : 'cursor-not-allowed text-slate/40'
+                            ? 'text-muted-foreground hover:bg-muted hover:text-accent'
+                            : 'cursor-not-allowed text-muted-foreground/40'
                         }`}
                         aria-label="נקודות ניווט"
                       >
                         <Navigation size={17} />
                         {(s.hotspots?.length ?? 0) > 0 && (
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-signal text-[10px] font-bold text-paper">
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
                             {s.hotspots.length}
                           </span>
                         )}
                       </button>
                       {!canAddHotspots && (
-                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-max -translate-x-1/2 rounded-lg bg-carbon px-2.5 py-1.5 text-[12px] text-paper opacity-0 transition-opacity group-hover/btn:opacity-100">
+                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 w-max -translate-x-1/2 rounded-lg bg-foreground px-2.5 py-1.5 text-[12px] text-white opacity-0 transition-opacity group-hover/btn:opacity-100">
                           דרושים לפחות 2 חדרים
                         </div>
                       )}
@@ -421,7 +421,7 @@ export default function SceneManager({
                     <button
                       onClick={() => remove(s)}
                       disabled={isDeleting}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-graphite transition-colors hover:bg-mist hover:text-signal disabled:opacity-50"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-accent disabled:opacity-50"
                       aria-label="מחק"
                     >
                       <Trash2 size={17} />

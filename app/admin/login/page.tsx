@@ -41,15 +41,15 @@ export default function AdminLoginPage() {
     <main className="flex min-h-[80vh] items-center justify-center px-6">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm rounded-3xl border border-slate/15 bg-paper p-8 shadow-card"
+        className="w-full max-w-sm rounded-3xl border border-border bg-surface p-8 shadow-card"
       >
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-mist text-carbon">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-foreground">
           <Lock size={22} />
         </span>
-        <h1 className="mt-5 font-display text-subheading font-extrabold text-carbon">
+        <h1 className="mt-5 font-display text-subheading font-extrabold text-foreground">
           אזור ניהול
         </h1>
-        <p className="mt-1 text-caption text-graphite">הזן סיסמה כדי להמשיך.</p>
+        <p className="mt-1 text-caption text-muted-foreground">הזן סיסמה כדי להמשיך.</p>
 
         <input
           name="password"
@@ -57,19 +57,19 @@ export default function AdminLoginPage() {
           required
           autoFocus
           placeholder="סיסמה"
-          className="mt-6 w-full rounded-xl border border-slate/20 bg-fog px-4 py-3.5 text-body text-carbon outline-none transition-all focus:border-carbon focus:bg-paper focus:ring-4 focus:ring-carbon/5"
+          className="mt-6 w-full rounded-xl border border-border bg-muted px-4 py-3.5 text-body text-foreground outline-none transition-all focus:border-border-strong focus:bg-surface focus:ring-4 focus:ring-foreground/5"
         />
 
-        {error && <p className="mt-3 text-caption text-signal">{error}</p>}
+        {error && <p className="mt-3 text-caption text-accent">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-carbon py-3.5 text-body font-semibold text-paper transition-opacity hover:opacity-85 disabled:opacity-60"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3.5 text-body font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-60"
         >
           {loading ? (
             <>
-              <Spinner className="h-4 w-4 border-paper/40 border-t-paper" />
+              <Spinner className="h-4 w-4 border-background/40 border-t-background" />
               נכנס…
             </>
           ) : (

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { ArrowRight, ExternalLink } from 'lucide-react'
 import { isAuthed } from '@/lib/auth'
+import ThemeToggle from '@/components/ThemeToggle'
 import { createServiceClient } from '@/lib/supabase'
 import type { Tour, TourScene } from '@/lib/types'
 import SceneManager from '@/components/SceneManager'
@@ -39,7 +40,7 @@ export default async function TourEditorPage({
     <main className="mx-auto max-w-[1000px] px-6 py-12">
       <Link
         href="/admin"
-        className="inline-flex items-center gap-1.5 text-caption font-medium text-graphite transition-colors hover:text-carbon"
+        className="inline-flex items-center gap-1.5 text-caption font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowRight size={16} />
         חזרה לדאשבורד
@@ -47,20 +48,23 @@ export default async function TourEditorPage({
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-heading-sm font-extrabold text-carbon">
+          <h1 className="font-display text-heading-sm font-extrabold text-foreground">
             {(tour as Tour).title}
           </h1>
-          <p className="mt-1 text-caption text-graphite" dir="ltr">
+          <p className="mt-1 text-caption text-muted-foreground" dir="ltr">
             /tour/{(tour as Tour).slug}
           </p>
         </div>
-        <Link
-          href={`/tour/${(tour as Tour).slug}`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-slate/25 px-4 py-2 text-caption font-medium text-carbon transition-colors hover:bg-mist"
-        >
-          צפייה בסיור
-          <ExternalLink size={15} />
-        </Link>
+        <div className="flex items-center gap-2.5">
+          <ThemeToggle />
+          <Link
+            href={`/tour/${(tour as Tour).slug}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-caption font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            צפייה בסיור
+            <ExternalLink size={15} />
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8">
