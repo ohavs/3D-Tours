@@ -253,7 +253,7 @@ export function StatsGhost() {
 type LottieAnim = any
 type Step = { anim?: LottieAnim; speed?: number; camera?: boolean; fallback: LucideIcon; t: string; d: string }
 const STEPS: Step[] = [
-  { anim: calendar, speed: 0.3, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
+  { anim: calendar, speed: 0.6, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
   { camera: true, fallback: Aperture, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
   { anim: settings, speed: 0.8, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
   { anim: share, speed: 0.9, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
