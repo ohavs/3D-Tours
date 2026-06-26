@@ -16,13 +16,16 @@ import { CountUp } from '@/components/anim'
 const ACCENT = '#ff682c'
 
 // ── אפקט 1: באנד חוויה — גרדיאנט חם רציף ──
-export function ExperienceBand() {
+// הקטעים אסימטריים: מתכהה מהר יחסית, *נשאר כהה*, וחוזר לאט (החזרה
+// לבהיר נמתחת על פני המחצית האחרונה כדי שלא תרגיש מהירה).
+export function ExperienceBand({ title, subcopy }: { title: string; subcopy: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const bg = useTransform(scrollYProgress, [0, 0.5, 1], ['#ffffff', '#140f0b', '#ffffff'])
-  const color = useTransform(scrollYProgress, [0, 0.5, 1], ['#0a0a0a', '#fff3ea', '#0a0a0a'])
-  const sub = useTransform(scrollYProgress, [0, 0.5, 1], ['#6b6b6b', '#ffd9c4', '#6b6b6b'])
-  const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.6, 0])
+  const stops = [0, 0.3, 0.48, 1]
+  const bg = useTransform(scrollYProgress, stops, ['#ffffff', '#140f0b', '#140f0b', '#ffffff'])
+  const color = useTransform(scrollYProgress, stops, ['#0a0a0a', '#fff3ea', '#fff3ea', '#0a0a0a'])
+  const sub = useTransform(scrollYProgress, stops, ['#6b6b6b', '#ffd9c4', '#ffd9c4', '#6b6b6b'])
+  const glow = useTransform(scrollYProgress, stops, [0, 0.6, 0.6, 0])
 
   return (
     <motion.section
@@ -34,14 +37,14 @@ export function ExperienceBand() {
         <div className="absolute inset-0" style={{ background: `radial-gradient(60% 55% at 50% 45%, ${ACCENT}55, transparent 70%)` }} />
       </motion.div>
       <div className="relative max-w-3xl text-center">
-        <h2 className="font-display font-black leading-[0.92]" style={{ fontSize: 'clamp(2.6rem,8vw,7rem)', letterSpacing: '-0.04em' }}>
-          לא תמונות.
-          <br />
-          חוויית מקום.
+        <h2
+          className="font-display font-black leading-[0.92]"
+          style={{ fontSize: 'clamp(2.6rem,8vw,7rem)', letterSpacing: '-0.04em', whiteSpace: 'pre-line' }}
+        >
+          {title}
         </h2>
         <motion.p style={{ color: sub }} className="mx-auto mt-7 max-w-xl text-body-lg leading-relaxed">
-          סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את
-          החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.
+          {subcopy}
         </motion.p>
       </div>
     </motion.section>
@@ -79,26 +82,6 @@ export function StatsGhost() {
           </div>
         ))}
       </div>
-    </section>
-  )
-}
-
-// ── אפקט 4: מעבר Wipe כתום ──
-export function WipeDivider() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const x = useTransform(scrollYProgress, [0.15, 0.5, 0.85], ['110%', '0%', '-110%'])
-  const op = useTransform(scrollYProgress, [0.4, 0.5, 0.6], [0, 1, 0])
-  return (
-    <section ref={ref} className="relative h-[55vh] overflow-hidden">
-      <motion.div aria-hidden style={{ x, background: ACCENT }} className="absolute inset-0 -skew-x-6">
-        <motion.span
-          style={{ opacity: op }}
-          className="absolute inset-0 grid skew-x-6 place-items-center font-display font-black text-white/90"
-        >
-          <span style={{ fontSize: '15vw' }}>360°</span>
-        </motion.span>
-      </motion.div>
     </section>
   )
 }

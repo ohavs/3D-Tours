@@ -8,12 +8,7 @@ import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import { Reveal } from '@/components/anim'
 import { ReactiveText, Magnetic } from '@/components/interactive'
-import {
-  ExperienceBand,
-  StatsGhost,
-  WipeDivider,
-  ProcessThread,
-} from '@/components/home-fx'
+import { ExperienceBand, StatsGhost, ProcessThread } from '@/components/home-fx'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -129,45 +124,24 @@ export default function HomePage() {
       </section>
 
       {/* אפקט 1 — באנד חוויה (גרדיאנט חם רציף + זוהר כתום) */}
-      <ExperienceBand />
+      <ExperienceBand
+        title={'לא תמונות.\nחוויית מקום.'}
+        subcopy={
+          'סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.'
+        }
+      />
       {/* אפקט 2 — מספרים עם כיתוב-רפאים "360°" ב-parallax */}
       <StatsGhost />
-      {/* אפקט 4 — מעבר Wipe כתום */}
-      <WipeDivider />
       {/* אפקט 3 — איך זה עובד (חוט כתום שמצייר את עצמו) */}
       <ProcessThread />
 
-      {/* ===================== אודות (אזור מצב מתחלף) ===================== */}
-      <section className="mx-auto max-w-[1240px] px-6 py-24">
-        <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
-          <Reveal>
-            <ReactiveText
-              as="h2"
-              className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
-              text={'קצת עליי'}
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="group rounded-2xl p-6 transition-colors duration-500 hover:bg-accent/[0.08] sm:p-8">
-              <p className="text-body-lg text-muted-foreground transition-colors duration-500 group-hover:text-foreground">
-                אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא
-                מקצה לקצה: אני מגיע, סורק את הנכס, ובונה את הסיור עד שהוא מוכן
-                להטמעה אצלך.
-              </p>
-              <a
-                href="#contact"
-                className="mt-4 inline-flex translate-y-1 items-center gap-1.5 text-body font-semibold text-accent opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
-              >
-                דברו איתי
-                <ArrowLeft size={17} strokeWidth={2.4} />
-              </a>
-              <p className="mt-4 text-caption text-muted-foreground/70">
-                * טקסט לדוגמה — שלח לי משפט-שניים אישיים ואחליף אותם כאן.
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* אפקט 1 (שוב) — אודות כבאנד חוויה */}
+      <ExperienceBand
+        title={'קצת עליי'}
+        subcopy={
+          'אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה: אני מגיע, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה אצלך.'
+        }
+      />
 
       {/* ===================== מה מקבלים + קוד הטמעה ===================== */}
       <section className="mx-auto max-w-[1240px] px-6 py-24">
