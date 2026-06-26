@@ -110,7 +110,9 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
   const { resolvedTheme } = useTheme()
   const pal = resolvedTheme === 'dark' ? PALETTE.dark : PALETTE.light
 
-  const stops = [0, 0.3, 0.48, 1]
+  // הסקשן גבוה (150vh) כדי לתת מרחק גלילה — המעבר נכנס ויוצא בקצב מאוזן,
+  // עם "החזקה" כהה ארוכה באמצע בזמן שהטקסט ממורכז (סימטרי סביב 0.5).
+  const stops = [0, 0.32, 0.68, 1]
   const bg = useTransform(scrollYProgress, stops, [pal.base, pal.peak, pal.peak, pal.base])
   const color = useTransform(scrollYProgress, stops, [pal.baseTx, pal.peakTx, pal.peakTx, pal.baseTx])
   const sub = useTransform(scrollYProgress, stops, [pal.baseSub, pal.peakSub, pal.peakSub, pal.baseSub])
@@ -120,7 +122,7 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
     <motion.section
       ref={ref}
       style={{ background: bg, color }}
-      className="relative grid min-h-screen place-items-center overflow-hidden px-6"
+      className="relative grid min-h-[150vh] place-items-center overflow-hidden px-6"
     >
       <motion.div aria-hidden style={{ opacity: glow }} className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0" style={{ background: `radial-gradient(60% 55% at 50% 45%, ${ACCENT}55, transparent 70%)` }} />
@@ -149,13 +151,13 @@ export function AboutSplit() {
 
   return (
     <section ref={ref} className="relative overflow-hidden bg-background py-14 sm:py-24">
-      <div className="mx-auto grid max-w-[1320px] items-stretch gap-5 px-5 sm:gap-7 sm:px-6 md:grid-cols-2">
+      <div className="mx-auto grid max-w-[1340px] items-stretch gap-9 px-5 sm:gap-16 sm:px-6 md:grid-cols-2">
         {/* פאנל היפוך-מצב — קלף מעוגל עם פינות רכות (בלי קצוות חדים) */}
         <motion.div
           initial={{ opacity: 0, x: 36 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.75, ease: EASE }}
-          className="relative flex items-center justify-center overflow-hidden rounded-[2rem] bg-foreground px-8 py-20 sm:rounded-[2.6rem] sm:px-12 md:min-h-[78vh]"
+          className="relative flex items-center justify-center overflow-hidden rounded-[2rem] bg-foreground px-8 py-24 sm:rounded-[2.8rem] sm:px-14 sm:py-28 md:min-h-[86vh]"
         >
           <div
             aria-hidden
@@ -169,7 +171,7 @@ export function AboutSplit() {
             </span>
             <h2
               className="mt-6 font-display font-black leading-[0.82] text-background"
-              style={{ fontSize: 'clamp(3.6rem,12vw,9.5rem)', letterSpacing: '-0.05em' }}
+              style={{ fontSize: 'clamp(4rem,13vw,10.5rem)', letterSpacing: '-0.05em' }}
             >
               קצת
               <br />
@@ -185,21 +187,21 @@ export function AboutSplit() {
           transition={{ duration: 0.75, ease: EASE, delay: 0.1 }}
           className="flex items-center px-2 sm:px-6 md:py-10"
         >
-          <div className="max-w-md">
-            <p className="text-body-lg leading-relaxed text-foreground sm:text-subheading">
+          <div className="max-w-lg">
+            <p className="font-display text-subheading font-bold leading-snug text-foreground sm:text-[2rem] sm:leading-[1.25]">
               אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה.
             </p>
-            <p className="mt-5 text-body leading-relaxed text-muted-foreground sm:text-body-lg">
+            <p className="mt-6 text-body-lg leading-relaxed text-muted-foreground sm:text-subheading">
               מגיע אליך, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה — עם לינק וקוד מוכן לאתר שלך.
             </p>
-            <ul className="mt-9 space-y-4">
+            <ul className="mt-10 space-y-5">
               {ABOUT_POINTS.map((t) => (
-                <li key={t} className="flex items-center gap-3.5 text-body font-medium text-foreground sm:text-body-lg">
+                <li key={t} className="flex items-center gap-4 text-body-lg font-medium text-foreground sm:text-subheading">
                   <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                     style={{ background: `${ACCENT}1f` }}
                   >
-                    <Check size={16} strokeWidth={3} style={{ color: ACCENT }} />
+                    <Check size={18} strokeWidth={3} style={{ color: ACCENT }} />
                   </span>
                   {t}
                 </li>

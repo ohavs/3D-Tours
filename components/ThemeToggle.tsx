@@ -20,7 +20,13 @@ export default function ThemeToggle({ className = '' }: { className?: string }) 
     <button
       type="button"
       aria-label={isDark ? 'מצב בהיר' : 'מצב כהה'}
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={() => {
+        // חלון מעבר מונפש (~0.7ש') — מוסיפים class שמפעיל transition על הצבעים
+        const html = document.documentElement
+        html.classList.add('theme-flip')
+        setTheme(isDark ? 'light' : 'dark')
+        window.setTimeout(() => html.classList.remove('theme-flip'), 850)
+      }}
       className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted ${className}`}
     >
       {/* כדי למנוע הבהוב לפני hydration — מציגים אייקון ניטרלי */}

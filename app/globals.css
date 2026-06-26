@@ -183,8 +183,8 @@ html.theme-flip h3,
 html.theme-flip div,
 html.theme-flip span,
 html.theme-flip pre {
-  transition: background-color 0.55s ease, color 0.55s ease,
-    border-color 0.55s ease, fill 0.55s ease !important;
+  transition: background-color 0.7s ease, color 0.7s ease,
+    border-color 0.7s ease, fill 0.7s ease !important;
 }
 
 /* ============================================================
