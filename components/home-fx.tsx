@@ -15,12 +15,11 @@ import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useTheme } from 'next-themes'
-import { CalendarCheck, Aperture, Boxes, Link2, Check, type LucideIcon } from 'lucide-react'
+import { Clock, Aperture, Boxes, Link2, Check, type LucideIcon } from 'lucide-react'
 import { CountUp } from '@/components/anim'
 
 // react-useanimations נטען רק בצד-לקוח (lottie נשען על DOM)
 const UseAnimations = dynamic(() => import('react-useanimations'), { ssr: false })
-import calendar from 'react-useanimations/lib/calendar'
 import settings from 'react-useanimations/lib/settings'
 import share from 'react-useanimations/lib/share'
 
@@ -126,7 +125,7 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
       className="relative grid min-h-[150vh] place-items-center overflow-hidden px-6"
     >
       <motion.div aria-hidden style={{ opacity: glow }} className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0" style={{ background: `radial-gradient(60% 55% at 50% 45%, ${ACCENT}55, transparent 70%)` }} />
+        <div className="absolute inset-0" style={{ background: `radial-gradient(125% 42% at 50% 45%, ${ACCENT}55, transparent 72%)` }} />
       </motion.div>
       <div className="relative max-w-3xl text-center">
         <h2
@@ -253,13 +252,26 @@ export function StatsGhost() {
 // ════════ אפקט 3: "איך זה עובד" — ענק, עם אייקונים מונפשים ════════
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LottieAnim = any
-type Step = { anim?: LottieAnim; speed?: number; camera?: boolean; fallback: LucideIcon; t: string; d: string }
+type Step = { anim?: LottieAnim; speed?: number; camera?: boolean; clock?: boolean; fallback: LucideIcon; t: string; d: string }
 const STEPS: Step[] = [
-  { anim: calendar, speed: 0.4, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
+  { clock: true, fallback: Clock, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
   { camera: true, fallback: Aperture, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
   { anim: settings, speed: 0.8, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
   { anim: share, speed: 0.9, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
 ]
+
+// אייקון "תיאום": שעון עם מחוגים שמסתובבים ברציפות — מתאים ללו"ז/זמן,
+// לולאה שלמה ואינסופית (אין מצלמה/שעון מונפשים נקיים ב-react-useanimations).
+function ClockTick() {
+  const hand = { transformBox: 'view-box', transformOrigin: '12px 12px' } as const
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" className="h-[58px] w-[58px] text-foreground">
+      <circle cx="12" cy="12" r="9" />
+      <motion.line x1="12" y1="12" x2="12" y2="7.6" style={hand} animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: 'linear' }} />
+      <motion.line x1="12" y1="12" x2="12" y2="9" style={hand} animate={{ rotate: 360 }} transition={{ duration: 24, repeat: Infinity, ease: 'linear' }} />
+    </svg>
+  )
+}
 
 // אייקון "צילום": עדשת מצלמה (Aperture) שמסתובבת לאט ברציפות —
 // תחושת מיקוד/עדשה, מתכתב עם סריקת 360°. (ל-react-useanimations אין מצלמה.)
@@ -307,7 +319,9 @@ function StepRow({ step }: { step: (typeof STEPS)[number] }) {
           transition={{ duration: 0.55, ease: EASE }}
           className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-muted text-foreground sm:h-28 sm:w-28"
         >
-          {step.camera ? (
+          {step.clock ? (
+            <ClockTick />
+          ) : step.camera ? (
             <CameraLens />
           ) : mounted && inView ? (
             <span className="flex items-center justify-center">
