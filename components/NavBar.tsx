@@ -57,7 +57,7 @@ export default function NavBar() {
     return null
 
   return (
-    <div className="sticky top-4 z-50 flex justify-center px-4">
+    <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav
         className="flex items-center gap-1 rounded-full border border-border bg-surface/85 p-1.5 pr-3 shadow-soft backdrop-blur-md"
         style={{ viewTransitionName: 'navbar' }}
