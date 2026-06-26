@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import { Reveal } from '@/components/anim'
 import { ReactiveText, Magnetic } from '@/components/interactive'
-import { ExperienceBand, StatsGhost, ProcessThread } from '@/components/home-fx'
+import { ExperienceBand, StatsGhost, ProcessThread, ParallaxGhost } from '@/components/home-fx'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -123,29 +123,33 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* אפקט 1 — באנד חוויה (גרדיאנט חם רציף + זוהר כתום) */}
+      {/* ── שני באנדי חוויה רצופים (כהה-אל-כהה, בלי הבזק לבן ביניהם) ── */}
+      {/* באנד 1 — נכנס לבהיר, מתכהה ו*נשאר כהה* */}
       <ExperienceBand
+        link="next"
         title={'לא תמונות.\nחוויית מקום.'}
         subcopy={
           'סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.'
         }
       />
-      {/* אפקט 2 — מספרים עם כיתוב-רפאים "360°" ב-parallax */}
-      <StatsGhost />
-      {/* אפקט 3 — איך זה עובד (חוט כתום שמצייר את עצמו) */}
-      <ProcessThread />
-
-      {/* אפקט 1 (שוב) — אודות כבאנד חוויה */}
+      {/* באנד 2 — ממשיך מכהה, ורק בסוף חוזר לבהיר */}
       <ExperienceBand
+        link="prev"
         title={'קצת עליי'}
         subcopy={
           'אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה: אני מגיע, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה אצלך.'
         }
       />
 
+      {/* אפקט 2 — מספרים עם כיתוב-רפאים "360°" ב-parallax */}
+      <StatsGhost />
+      {/* אפקט 3 — איך זה עובד (חוט כתום שמצייר את עצמו) */}
+      <ProcessThread />
+
       {/* ===================== מה מקבלים + קוד הטמעה ===================== */}
-      <section className="mx-auto max-w-[1240px] px-6 py-24">
-        <div className="grid items-center gap-12 md:grid-cols-2">
+      <section className="relative overflow-hidden">
+        <ParallaxGhost text="</>" position="right" size="32vw" />
+        <div className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-6 py-24 md:grid-cols-2">
           <Reveal className="min-w-0">
             <div>
               <ReactiveText
@@ -181,8 +185,9 @@ export default function HomePage() {
       </section>
 
       {/* ===================== מחירים ===================== */}
-      <section id="pricing" className="mx-auto max-w-[1240px] px-6 py-24">
-        <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+      <section id="pricing" className="relative overflow-hidden">
+        <ParallaxGhost text="₪" position="left" size="36vw" />
+        <div className="relative mx-auto grid max-w-[1240px] gap-10 px-6 py-24 md:grid-cols-[0.9fr_1.1fr] md:items-center">
           <Reveal>
             <ReactiveText
               as="h2"
@@ -212,7 +217,9 @@ export default function HomePage() {
       </section>
 
       {/* ===================== FAQ ===================== */}
-      <section id="faq" className="mx-auto max-w-[1240px] px-6 py-24">
+      <section id="faq" className="relative overflow-hidden">
+        <ParallaxGhost text="?" position="right" size="40vw" />
+        <div className="relative mx-auto max-w-[1240px] px-6 py-24">
         <Reveal>
           <ReactiveText
             as="h2"
@@ -223,6 +230,7 @@ export default function HomePage() {
         <Reveal delay={0.1}>
           <Faq items={FAQ_ITEMS} />
         </Reveal>
+        </div>
       </section>
 
       {/* ===================== צור קשר ===================== */}

@@ -2,10 +2,12 @@
 
 // ============================================================
 // components/home-fx.tsx — אפקטי הגלילה של דף הבית (נבחרו במעבדה):
-//   ExperienceBand — גרדיאנט חם רציף + זוהר כתום (אפקט 1)
+//   ExperienceBand — גרדיאנט חם רציף + זוהר כתום (אפקט 1).
+//                    תומך בשרשור (link) כדי ליצור שני באנדים רצופים
+//                    בלי הבזק לבן ביניהם.
 //   StatsGhost     — מספרים עם כיתוב-רפאים "360°" ב-parallax (אפקט 2)
 //   ProcessThread  — "איך זה עובד" עם חוט כתום שמצייר את עצמו (אפקט 3)
-//   WipeDivider    — מעבר עם פאנל כתום אלכסוני (אפקט 4)
+//   ParallaxGhost  — כיתוב-רפאים כתום ב-parallax לרקע סקשנים (הטמעה/מחירים/שאלות)
 // ============================================================
 
 import { useRef } from 'react'
@@ -15,17 +17,59 @@ import { CountUp } from '@/components/anim'
 
 const ACCENT = '#ff682c'
 
+const DARK = '#140f0b'
+const LIGHT = '#ffffff'
+const DARK_TX = '#fff3ea'
+const LIGHT_TX = '#0a0a0a'
+const DARK_SUB = '#ffd9c4'
+const LIGHT_SUB = '#6b6b6b'
+
 // ── אפקט 1: באנד חוויה — גרדיאנט חם רציף ──
-// הקטעים אסימטריים: מתכהה מהר יחסית, *נשאר כהה*, וחוזר לאט (החזרה
-// לבהיר נמתחת על פני המחצית האחרונה כדי שלא תרגיש מהירה).
-export function ExperienceBand({ title, subcopy }: { title: string; subcopy: string }) {
+// link='solo'  → בהיר→כהה→בהיר (סקשן בודד).
+// link='next'  → בהיר→כהה ו*נשאר כהה* בסוף (הראשון מבין זוג).
+// link='prev'  → מתחיל כהה, נשאר כהה, וחוזר לבהיר בסוף (השני מבין זוג).
+// כך שני באנדים רצופים מתחברים כהה-אל-כהה, בלי הבזק לבן באמצע.
+export function ExperienceBand({
+  title,
+  subcopy,
+  link = 'solo',
+}: {
+  title: string
+  subcopy: string
+  link?: 'solo' | 'next' | 'prev'
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const stops = [0, 0.3, 0.48, 1]
-  const bg = useTransform(scrollYProgress, stops, ['#ffffff', '#140f0b', '#140f0b', '#ffffff'])
-  const color = useTransform(scrollYProgress, stops, ['#0a0a0a', '#fff3ea', '#fff3ea', '#0a0a0a'])
-  const sub = useTransform(scrollYProgress, stops, ['#6b6b6b', '#ffd9c4', '#ffd9c4', '#6b6b6b'])
-  const glow = useTransform(scrollYProgress, stops, [0, 0.6, 0.6, 0])
+
+  let stops: number[]
+  let bgC: string[]
+  let coC: string[]
+  let suC: string[]
+  let glC: number[]
+  if (link === 'next') {
+    stops = [0, 0.35, 1]
+    bgC = [LIGHT, DARK, DARK]
+    coC = [LIGHT_TX, DARK_TX, DARK_TX]
+    suC = [LIGHT_SUB, DARK_SUB, DARK_SUB]
+    glC = [0, 0.6, 0.6]
+  } else if (link === 'prev') {
+    stops = [0, 0.65, 1]
+    bgC = [DARK, DARK, LIGHT]
+    coC = [DARK_TX, DARK_TX, LIGHT_TX]
+    suC = [DARK_SUB, DARK_SUB, LIGHT_SUB]
+    glC = [0.6, 0.6, 0]
+  } else {
+    stops = [0, 0.3, 0.48, 1]
+    bgC = [LIGHT, DARK, DARK, LIGHT]
+    coC = [LIGHT_TX, DARK_TX, DARK_TX, LIGHT_TX]
+    suC = [LIGHT_SUB, DARK_SUB, DARK_SUB, LIGHT_SUB]
+    glC = [0, 0.6, 0.6, 0]
+  }
+
+  const bg = useTransform(scrollYProgress, stops, bgC)
+  const color = useTransform(scrollYProgress, stops, coC)
+  const sub = useTransform(scrollYProgress, stops, suC)
+  const glow = useTransform(scrollYProgress, stops, glC)
 
   return (
     <motion.section
@@ -94,6 +138,9 @@ const STEPS = [
   { icon: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה — תוך 48 שעות.', at: 0.92 },
 ]
 
+// מיקום מאוחד למסילה ולנקודות: מרכז שתיהן נמצא ב-right:24px מקצה
+// המכל. המסילה ברוחב 2px ממורכזת על 24, והנקודות (16px) ממוקמות
+// כך שמרכזן יושב על אותו ציר בדיוק — מסודר ואחיד.
 export function ProcessThread() {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start center', 'end center'] })
@@ -108,20 +155,21 @@ export function ProcessThread() {
       <h2 className="mb-16 font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
         איך זה עובד
       </h2>
-      <div className="relative pr-12">
-        {/* קו רקע */}
-        <div className="absolute right-[7px] top-2 h-[calc(100%-1rem)] w-[3px] bg-border" />
-        {/* חוט כתום שמצייר את עצמו */}
+      <div className="relative">
+        {/* קו רקע — ממורכז על right:24px */}
+        <div className="absolute right-[23px] top-3 bottom-3 w-[2px] bg-border" />
+        {/* חוט כתום שמצייר את עצמו — אותו ציר בדיוק */}
         <motion.div
           style={{ scaleY: scrollYProgress, background: ACCENT }}
-          className="absolute right-[7px] top-2 h-[calc(100%-1rem)] w-[3px] origin-top"
+          className="absolute right-[23px] top-3 bottom-3 w-[2px] origin-top"
         />
         <div className="space-y-16">
           {STEPS.map((s, i) => (
-            <div key={i} className="relative">
+            <div key={i} className="relative pr-14">
+              {/* נקודה — מרכזה (16px) יושב על right:24px, בדיוק על המסילה */}
               <motion.span
                 style={{ scale: scales[i], background: ACCENT }}
-                className="absolute -right-[44px] top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full ring-4 ring-background"
+                className="absolute right-[16px] top-1.5 h-4 w-4 rounded-full ring-4 ring-background"
               />
               <div className="flex items-start gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground">
@@ -137,5 +185,40 @@ export function ProcessThread() {
         </div>
       </div>
     </section>
+  )
+}
+
+// ── כיתוב-רפאים כתום ב-parallax (רקע לסקשנים התחתונים) ──
+// ממוקם בתוך parent עם position:relative ו-overflow-hidden.
+export function ParallaxGhost({
+  text,
+  size = '30vw',
+  position = 'left',
+}: {
+  text: string
+  size?: string
+  position?: 'left' | 'right' | 'center'
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], ['16%', '-16%'])
+  const x = useTransform(scrollYProgress, [0, 1], ['5%', '-5%'])
+
+  const place =
+    position === 'right'
+      ? 'right-[-4vw] top-1/2 -translate-y-1/2'
+      : position === 'center'
+        ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'
+        : 'left-[-4vw] top-1/2 -translate-y-1/2'
+
+  return (
+    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      <motion.span
+        style={{ y, x, color: ACCENT }}
+        className={`absolute select-none font-display font-black leading-none opacity-[0.05] ${place}`}
+      >
+        <span style={{ fontSize: size }}>{text}</span>
+      </motion.span>
+    </div>
   )
 }
