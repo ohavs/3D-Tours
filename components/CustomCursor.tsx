@@ -14,11 +14,10 @@ export default function CustomCursor() {
   const ring = useRef<HTMLDivElement>(null)
   const [enabled, setEnabled] = useState(false)
 
-  // האם בכלל להפעיל (דסקטופ, ללא reduce-motion, ללא a11y שמכבה)
+  // האם בכלל להפעיל (דסקטופ; reduce-motion רק מבטל את ההשתרכות, לא את הסמן)
   useEffect(() => {
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!fine || reduce) return
+    if (!fine) return
 
     function readA11y() {
       const raw = localStorage.getItem('a11y-settings')
@@ -49,6 +48,10 @@ export default function CustomCursor() {
       return
     }
     html.classList.add('cursor-hidden')
+
+    // אם המערכת מבקשת צמצום תנועה — הטבעת עוקבת מיידית (בלי השתרכות)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const lag = reduce ? 1 : 0.18
 
     let mx = window.innerWidth / 2
     let my = window.innerHeight / 2
@@ -84,8 +87,8 @@ export default function CustomCursor() {
     }
 
     function loop() {
-      rx += (mx - rx) * 0.18
-      ry += (my - ry) * 0.18
+      rx += (mx - rx) * lag
+      ry += (my - ry) * lag
       if (ring.current) ring.current.style.transform = `translate(${rx}px, ${ry}px)`
       raf = requestAnimationFrame(loop)
     }

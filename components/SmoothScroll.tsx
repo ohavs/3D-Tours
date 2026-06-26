@@ -11,7 +11,8 @@ import Lenis from 'lenis'
 
 function motionStopped() {
   if (typeof window === 'undefined') return false
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
+  // רק הבחירה המפורשת בתפריט הנגישות מכבה — לא reduce-motion של המערכת
+  // (משתמשי דסקטופ רבים עם reduce-motion עדיין מצפים לגלילה חלקה).
   try {
     const s = JSON.parse(localStorage.getItem('a11y-settings') || '{}')
     return !!s.stop
