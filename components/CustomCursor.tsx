@@ -1,23 +1,23 @@
 'use client'
 
 // ============================================================
-// components/CustomCursor.tsx — סמן עכבר מותאם, מעוצב:
-// טבעת מלוטשת עם זוהר רך שמשתרכת אחרי העכבר, ובתוכה נקודה כתומה.
-// "משחק" הנקודה: לפי מיקום העכבר על המסך הנקודה נוטה לכיוון ההפוך —
-// בחצי השמאלי היא נדחפת ימינה, בחצי הימני שמאלה, וככל שהעכבר קרוב
-// יותר לקצה — כך הנטייה חזקה יותר. דסקטופ בלבד. מכבה את עצמו
-// כשבתפריט הנגישות מפעילים "סמן גדול" / "עצירת אנימציות".
+// components/CustomCursor.tsx — סמן עכבר מותאם בנושא "מצלמה":
+// מסגרת-פוקוס (focus reticle) של 4 פינות, כמו מסגרת מיקוד במצלמה,
+// ובמרכזה נקודה כתומה. בתנועה המסגרת "מחפשת פוקוס" (נפתחת מעט),
+// ומעל אלמנט אינטראקטיבי היא "נועלת פוקוס" (מתכווצת ומתבהרת).
+// "משחק" הנקודה: לפי מיקום העכבר על המסך הנקודה נוטה לכיוון ההפוך,
+// חזק יותר בקצוות. דסקטופ בלבד; מכבה את עצמו ב"סמן גדול"/"עצירת
+// אנימציות" בתפריט הנגישות.
 // ============================================================
 
 import { useEffect, useRef, useState } from 'react'
 
-// עוצמת נטיית הנקודה בתוך הטבעת (px) — נשארת בתוך הטבעת בבטחה.
 const LEAN_X = 9
 const LEAN_Y = 6
 
 export default function CustomCursor() {
   const dot = useRef<HTMLDivElement>(null)
-  const ring = useRef<HTMLDivElement>(null)
+  const frame = useRef<HTMLDivElement>(null)
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
@@ -63,8 +63,7 @@ export default function CustomCursor() {
     let ry = my
     let raf = 0
     let visible = false
-    let stretch = 0 // עוצמת מתיחה אלסטית לפי מהירות
-    let angle = 0 // כיוון התנועה (לכיוון המתיחה)
+    let open = 0 // פתיחת המסגרת בתנועה (חיפוש פוקוס)
 
     function onMove(e: MouseEvent) {
       mx = e.clientX
@@ -72,22 +71,22 @@ export default function CustomCursor() {
       if (!visible) {
         visible = true
         if (dot.current) dot.current.style.opacity = '1'
-        if (ring.current) ring.current.style.opacity = '1'
+        if (frame.current) frame.current.style.opacity = '1'
       }
       const t = e.target as HTMLElement
       const interactive = t.closest('a, button, [role="button"], input, textarea, label, select, [data-cursor]')
-      if (ring.current) ring.current.dataset.hot = interactive ? '1' : '0'
+      if (frame.current) frame.current.dataset.hot = interactive ? '1' : '0'
     }
     function onDown() {
-      if (ring.current) ring.current.dataset.down = '1'
+      if (frame.current) frame.current.dataset.down = '1'
     }
     function onUp() {
-      if (ring.current) ring.current.dataset.down = '0'
+      if (frame.current) frame.current.dataset.down = '0'
     }
     function onLeave() {
       visible = false
       if (dot.current) dot.current.style.opacity = '0'
-      if (ring.current) ring.current.style.opacity = '0'
+      if (frame.current) frame.current.style.opacity = '0'
     }
 
     function loop() {
@@ -96,16 +95,16 @@ export default function CustomCursor() {
       rx += (mx - rx) * lag
       ry += (my - ry) * lag
 
-      // מתיחה אלסטית: הטבעת נמתחת לכיוון התנועה ומתכווצת בניצב, לפי המהירות
-      const vx = rx - px
-      const vy = ry - py
-      const speed = Math.hypot(vx, vy)
-      const target = Math.min(speed * 0.025, 0.42)
-      stretch += (target - stretch) * 0.18
-      if (speed > 0.5) angle = Math.atan2(vy, vx)
-      if (ring.current) {
-        ring.current.style.transform =
-          `translate(${rx}px, ${ry}px) rotate(${angle}rad) scale(${(1 + stretch).toFixed(3)}, ${(1 - stretch * 0.6).toFixed(3)})`
+      // המסגרת "נפתחת" לפי המהירות (חיפוש פוקוס), ונסגרת במנוחה
+      const speed = Math.hypot(rx - px, ry - py)
+      const target = Math.min(speed * 0.02, 0.32)
+      open += (target - open) * 0.15
+      const hot = frame.current?.dataset.hot === '1'
+      const down = frame.current?.dataset.down === '1'
+      const base = hot ? 0.66 : 1
+      const scale = base * (down ? 0.85 : 1) * (1 + open)
+      if (frame.current) {
+        frame.current.style.transform = `translate(${rx}px, ${ry}px) scale(${scale.toFixed(3)})`
       }
 
       // נטיית הנקודה: לפי מיקום על המסך, לכיוון ההפוך, חזק יותר בקצוות
@@ -135,43 +134,52 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* נקודה */}
+      {/* נקודת מרכז */}
       <div
         ref={dot}
         aria-hidden
         className="ccursor-dot pointer-events-none fixed left-0 top-0 z-[140] rounded-full opacity-0"
       />
-      {/* טבעת */}
+      {/* מסגרת-פוקוס: 4 פינות */}
       <div
-        ref={ring}
+        ref={frame}
         aria-hidden
         data-hot="0"
         data-down="0"
-        className="ccursor-ring pointer-events-none fixed left-0 top-0 z-[140] rounded-full opacity-0"
-      />
+        className="ccursor-frame pointer-events-none fixed left-0 top-0 z-[140] opacity-0"
+      >
+        <span className="cc-corner cc-tl" />
+        <span className="cc-corner cc-tr" />
+        <span className="cc-corner cc-bl" />
+        <span className="cc-corner cc-br" />
+      </div>
       <style>{`
         .ccursor-dot{
-          width:7px;height:7px;margin-left:-3.5px;margin-top:-3.5px;
+          width:6px;height:6px;margin-left:-3px;margin-top:-3px;
           background:var(--accent);
-          box-shadow:0 0 8px rgba(255,104,44,0.7);
-          transition:opacity .3s ease, width .2s ease, height .2s ease;
+          box-shadow:0 0 9px rgba(255,104,44,0.75);
+          transition:opacity .3s ease;
         }
-        .ccursor-ring{
-          width:36px;height:36px;margin-left:-18px;margin-top:-18px;
-          border:1.5px solid color-mix(in srgb, var(--accent) 70%, transparent);
-          box-shadow:0 0 18px rgba(255,104,44,0.22), inset 0 0 10px rgba(255,104,44,0.06);
-          transition:width .28s cubic-bezier(.22,1,.36,1), height .28s cubic-bezier(.22,1,.36,1),
-                     margin .28s cubic-bezier(.22,1,.36,1), border-color .28s ease,
-                     background-color .28s ease, opacity .3s ease;
+        .ccursor-frame{
+          width:40px;height:40px;margin-left:-20px;margin-top:-20px;
+          transition:opacity .3s ease;
+          filter:drop-shadow(0 0 5px rgba(255,104,44,0.35));
         }
-        .ccursor-ring[data-hot="1"]{
-          width:62px;height:62px;margin-left:-31px;margin-top:-31px;
-          border-color:color-mix(in srgb, var(--accent) 90%, transparent);
+        .cc-corner{
+          position:absolute;width:10px;height:10px;
+          border-color:color-mix(in srgb, var(--accent) 85%, transparent);
+          transition:border-color .25s ease;
+        }
+        .cc-tl{top:0;left:0;border-top:2px solid;border-left:2px solid;border-top-left-radius:3px}
+        .cc-tr{top:0;right:0;border-top:2px solid;border-right:2px solid;border-top-right-radius:3px}
+        .cc-bl{bottom:0;left:0;border-bottom:2px solid;border-left:2px solid;border-bottom-left-radius:3px}
+        .cc-br{bottom:0;right:0;border-bottom:2px solid;border-right:2px solid;border-bottom-right-radius:3px}
+        .ccursor-frame[data-hot="1"] .cc-corner{
+          border-color:var(--accent);
+        }
+        .ccursor-frame[data-hot="1"]::after{
+          content:'';position:absolute;inset:7px;border-radius:7px;
           background:rgba(255,104,44,0.10);
-        }
-        .ccursor-ring[data-down="1"]{
-          width:28px;height:28px;margin-left:-14px;margin-top:-14px;
-          background:rgba(255,104,44,0.16);
         }
       `}</style>
     </>
