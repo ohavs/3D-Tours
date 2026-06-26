@@ -37,6 +37,8 @@ export default function SmoothScroll({
         wheelMultiplier: 1.1,
         smoothWheel: true,
       })
+      // חשיפה גלובלית כדי שהניווט יוכל לגלול בצורה חלקה לסקשנים
+      ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
       const raf = (time: number) => {
         lenis?.raf(time)
         rafId = requestAnimationFrame(raf)
@@ -47,6 +49,7 @@ export default function SmoothScroll({
       cancelAnimationFrame(rafId)
       lenis?.destroy()
       lenis = null
+      ;(window as unknown as { __lenis?: Lenis | null }).__lenis = null
     }
 
     start()
