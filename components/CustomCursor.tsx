@@ -1,13 +1,12 @@
 'use client'
 
 // ============================================================
-// components/CustomCursor.tsx — סמן עכבר מותאם בנושא "מצלמה":
-// מסגרת-פוקוס (focus reticle) של 4 פינות, כמו מסגרת מיקוד במצלמה,
-// ובמרכזה נקודה כתומה. בתנועה המסגרת "מחפשת פוקוס" (נפתחת מעט),
-// ומעל אלמנט אינטראקטיבי היא "נועלת פוקוס" (מתכווצת ומתבהרת).
-// "משחק" הנקודה: לפי מיקום העכבר על המסך הנקודה נוטה לכיוון ההפוך,
-// חזק יותר בקצוות. דסקטופ בלבד; מכבה את עצמו ב"סמן גדול"/"עצירת
-// אנימציות" בתפריט הנגישות.
+// components/CustomCursor.tsx — סמן עכבר מותאם, מעודן:
+// טבעת דקה עם זוהר רך, ועליה שתי קשתות-אקסנט כתומות שמסתובבות
+// כל הזמן (תחושת עדשה/פוקוס, מתכתב עם 360°). במרכז נקודה כתומה.
+// מעל אלמנט אינטראקטיבי הטבעת גדלה והסיבוב מאיץ. "משחק" הנקודה:
+// לפי מיקום העכבר על המסך היא נוטה לכיוון ההפוך, חזק יותר בקצוות.
+// דסקטופ בלבד; מכבה את עצמו ב"סמן גדול"/"עצירת אנימציות".
 // ============================================================
 
 import { useEffect, useRef, useState } from 'react'
@@ -63,7 +62,7 @@ export default function CustomCursor() {
     let ry = my
     let raf = 0
     let visible = false
-    let open = 0 // פתיחת המסגרת בתנועה (חיפוש פוקוס)
+    let open = 0
 
     function onMove(e: MouseEvent) {
       mx = e.clientX
@@ -95,14 +94,11 @@ export default function CustomCursor() {
       rx += (mx - rx) * lag
       ry += (my - ry) * lag
 
-      // המסגרת "נפתחת" לפי המהירות (חיפוש פוקוס), ונסגרת במנוחה
       const speed = Math.hypot(rx - px, ry - py)
-      const target = Math.min(speed * 0.02, 0.32)
-      open += (target - open) * 0.15
+      open += (Math.min(speed * 0.014, 0.22) - open) * 0.15
       const hot = frame.current?.dataset.hot === '1'
       const down = frame.current?.dataset.down === '1'
-      const base = hot ? 0.66 : 1
-      const scale = base * (down ? 0.85 : 1) * (1 + open)
+      const scale = (hot ? 1.45 : 1) * (down ? 0.86 : 1) * (1 + open)
       if (frame.current) {
         frame.current.style.transform = `translate(${rx}px, ${ry}px) scale(${scale.toFixed(3)})`
       }
@@ -140,47 +136,50 @@ export default function CustomCursor() {
         aria-hidden
         className="ccursor-dot pointer-events-none fixed left-0 top-0 z-[140] rounded-full opacity-0"
       />
-      {/* מסגרת-פוקוס: 4 פינות */}
+      {/* טבעת עם קשתות מסתובבות */}
       <div
         ref={frame}
         aria-hidden
         data-hot="0"
         data-down="0"
-        className="ccursor-frame pointer-events-none fixed left-0 top-0 z-[140] opacity-0"
+        className="ccursor-ring pointer-events-none fixed left-0 top-0 z-[140] opacity-0"
       >
-        <span className="cc-corner cc-tl" />
-        <span className="cc-corner cc-tr" />
-        <span className="cc-corner cc-bl" />
-        <span className="cc-corner cc-br" />
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle className="cc-base" cx="20" cy="20" r="18" fill="none" strokeWidth="1.25" />
+          <circle
+            className="cc-arc"
+            cx="20"
+            cy="20"
+            r="18"
+            fill="none"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeDasharray="16 40.5 16 40.5"
+          />
+        </svg>
       </div>
       <style>{`
         .ccursor-dot{
           width:6px;height:6px;margin-left:-3px;margin-top:-3px;
           background:var(--accent);
-          box-shadow:0 0 9px rgba(255,104,44,0.75);
+          box-shadow:0 0 10px rgba(255,104,44,0.8);
           transition:opacity .3s ease;
         }
-        .ccursor-frame{
+        .ccursor-ring{
           width:40px;height:40px;margin-left:-20px;margin-top:-20px;
           transition:opacity .3s ease;
-          filter:drop-shadow(0 0 5px rgba(255,104,44,0.35));
+          filter:drop-shadow(0 0 6px rgba(255,104,44,0.35));
         }
-        .cc-corner{
-          position:absolute;width:10px;height:10px;
-          border-color:color-mix(in srgb, var(--accent) 85%, transparent);
-          transition:border-color .25s ease;
+        .ccursor-ring svg{display:block}
+        .cc-base{ stroke:color-mix(in srgb, var(--accent) 26%, transparent); }
+        .cc-arc{
+          stroke:var(--accent);
+          transform-box:fill-box; transform-origin:center;
+          animation:ccspin 2.8s linear infinite;
         }
-        .cc-tl{top:0;left:0;border-top:2px solid;border-left:2px solid;border-top-left-radius:3px}
-        .cc-tr{top:0;right:0;border-top:2px solid;border-right:2px solid;border-top-right-radius:3px}
-        .cc-bl{bottom:0;left:0;border-bottom:2px solid;border-left:2px solid;border-bottom-left-radius:3px}
-        .cc-br{bottom:0;right:0;border-bottom:2px solid;border-right:2px solid;border-bottom-right-radius:3px}
-        .ccursor-frame[data-hot="1"] .cc-corner{
-          border-color:var(--accent);
-        }
-        .ccursor-frame[data-hot="1"]::after{
-          content:'';position:absolute;inset:7px;border-radius:7px;
-          background:rgba(255,104,44,0.10);
-        }
+        .ccursor-ring[data-hot="1"] .cc-arc{ animation-duration:1.1s; }
+        .ccursor-ring[data-hot="1"] .cc-base{ stroke:color-mix(in srgb, var(--accent) 42%, transparent); }
+        @keyframes ccspin{ to{ transform:rotate(360deg); } }
       `}</style>
     </>
   )

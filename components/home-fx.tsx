@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useTheme } from 'next-themes'
-import { CalendarCheck, Camera, Boxes, Link2, Check, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, Aperture, Boxes, Link2, Check, type LucideIcon } from 'lucide-react'
 import { CountUp } from '@/components/anim'
 
 // react-useanimations נטען רק בצד-לקוח (lottie נשען על DOM)
@@ -251,53 +251,49 @@ export function StatsGhost() {
 // ════════ אפקט 3: "איך זה עובד" — ענק, עם אייקונים מונפשים ════════
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LottieAnim = any
-type Step = { anim?: LottieAnim; kind?: 'camera'; speed?: number; fallback: LucideIcon; t: string; d: string }
+type Step = { anim?: LottieAnim; speed?: number; camera?: boolean; fallback: LucideIcon; t: string; d: string }
 const STEPS: Step[] = [
-  { anim: calendar, speed: 0.5, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
-  { kind: 'camera', fallback: Camera, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
+  { anim: calendar, speed: 0.3, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
+  { camera: true, fallback: Aperture, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
   { anim: settings, speed: 0.8, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
   { anim: share, speed: 0.9, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
 ]
 
-// אייקון מצלמה מונפש (אין מצלמה ב-react-useanimations): גוף המצלמה
-// "נושם", ומבזק קצר מהבהב מעל העדשה כל מחזור — תחושת צילום חוזר.
-function CameraShot() {
+// אייקון "צילום": עדשת מצלמה (Aperture) שמסתובבת לאט ברציפות —
+// תחושת מיקוד/עדשה, מתכתב עם סריקת 360°. (ל-react-useanimations אין מצלמה.)
+function CameraLens() {
   return (
-    <div className="relative grid h-12 w-12 place-items-center text-foreground sm:h-16 sm:w-16">
-      <motion.div
-        animate={{ scale: [1, 1.08, 1] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <Camera className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
-      </motion.div>
-      <motion.span
-        aria-hidden
-        className="absolute rounded-full"
-        style={{ background: ACCENT, width: 9, height: 9, top: '56%', left: '50%', x: '-50%', y: '-50%' }}
-        animate={{ opacity: [0, 0, 0.95, 0], scale: [0.3, 0.3, 1.5, 0.3] }}
-        transition={{ duration: 2.2, repeat: Infinity, times: [0, 0.55, 0.66, 0.86], ease: 'easeOut' }}
-      />
-    </div>
+    <motion.div
+      className="text-foreground"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+    >
+      <Aperture className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.6} />
+    </motion.div>
   )
 }
 
 function StepRow({ step }: { step: (typeof STEPS)[number] }) {
   const ref = useRef<HTMLDivElement>(null)
+  const dotRef = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-25%' })
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
   const Fallback = step.fallback
 
+  // מילוי הצומת מונע-גלילה: חלול כשהוא מתחת, מתמלא בכתום כשהחוט מגיע אליו.
+  const { scrollYProgress: dotP } = useScroll({ target: dotRef, offset: ['start 0.82', 'start 0.5'] })
+  const fillBg = useTransform(dotP, [0, 1], ['rgba(255,104,44,0)', 'rgba(255,104,44,1)'])
+  const fillBorder = useTransform(dotP, [0, 1], ['rgba(255,104,44,0.3)', 'rgba(255,104,44,1)'])
+  const fillScale = useTransform(dotP, [0, 1], [0.72, 1])
+
   return (
     <div ref={ref} className="relative pr-16 sm:pr-24">
-      {/* נקודת ציר — טבעת חלולה (מרכז שקוף לרקע); בכניסה לשלב המסגרת
-          מתבהרת לכתום מלא. נשארת חלולה תמיד (right:30px). */}
-      <span className="absolute right-[19px] top-10 -translate-y-1/2 sm:top-14">
+      {/* נקודת ציר — טבעת חלולה שמתמלאת בכתום ככל שהגלילה מגיעה אליה (right:30px) */}
+      <span ref={dotRef} className="absolute right-[19px] top-10 -translate-y-1/2 sm:top-14">
         <motion.span
-          initial={{ scale: 0.6, borderColor: 'rgba(255,104,44,0.3)' }}
-          animate={inView ? { scale: 1, borderColor: 'rgba(255,104,44,1)' } : {}}
-          transition={{ duration: 0.55, ease: EASE }}
-          className="block h-[22px] w-[22px] rounded-full border-[3px] bg-background ring-4 ring-background"
+          style={{ backgroundColor: fillBg, borderColor: fillBorder, scale: fillScale }}
+          className="block h-[22px] w-[22px] rounded-full border-[3px] ring-4 ring-background"
         />
       </span>
 
@@ -309,8 +305,8 @@ function StepRow({ step }: { step: (typeof STEPS)[number] }) {
           transition={{ duration: 0.55, ease: EASE }}
           className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-muted text-foreground sm:h-28 sm:w-28"
         >
-          {step.kind === 'camera' ? (
-            <CameraShot />
+          {step.camera ? (
+            <CameraLens />
           ) : mounted && inView ? (
             <span className="[&_svg]:!h-12 [&_svg]:!w-12 sm:[&_svg]:!h-16 sm:[&_svg]:!w-16">
               <UseAnimations animation={step.anim} size={64} strokeColor="currentColor" autoplay loop speed={step.speed ?? 1} />

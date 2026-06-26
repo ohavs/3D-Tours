@@ -169,6 +169,13 @@
   }
 }
 
+/* מעבר Dark/Light חלק דרך View Transitions — crossfade קליל ב-GPU */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: ease;
+}
+
 /* החלפת מצב חלקה בגלילה (ScrollThemeFlip) — מופעל רק בזמן ההחלפה */
 html.theme-flip,
 html.theme-flip body,
