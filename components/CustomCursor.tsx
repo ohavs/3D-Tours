@@ -63,6 +63,8 @@ export default function CustomCursor() {
     let ry = my
     let raf = 0
     let visible = false
+    let stretch = 0 // עוצמת מתיחה אלסטית לפי מהירות
+    let angle = 0 // כיוון התנועה (לכיוון המתיחה)
 
     function onMove(e: MouseEvent) {
       mx = e.clientX
@@ -89,9 +91,23 @@ export default function CustomCursor() {
     }
 
     function loop() {
+      const px = rx
+      const py = ry
       rx += (mx - rx) * lag
       ry += (my - ry) * lag
-      if (ring.current) ring.current.style.transform = `translate(${rx}px, ${ry}px)`
+
+      // מתיחה אלסטית: הטבעת נמתחת לכיוון התנועה ומתכווצת בניצב, לפי המהירות
+      const vx = rx - px
+      const vy = ry - py
+      const speed = Math.hypot(vx, vy)
+      const target = Math.min(speed * 0.025, 0.42)
+      stretch += (target - stretch) * 0.18
+      if (speed > 0.5) angle = Math.atan2(vy, vx)
+      if (ring.current) {
+        ring.current.style.transform =
+          `translate(${rx}px, ${ry}px) rotate(${angle}rad) scale(${(1 + stretch).toFixed(3)}, ${(1 - stretch * 0.6).toFixed(3)})`
+      }
+
       // נטיית הנקודה: לפי מיקום על המסך, לכיוון ההפוך, חזק יותר בקצוות
       const nx = Math.max(-1, Math.min(1, (mx / window.innerWidth - 0.5) * 2))
       const ny = Math.max(-1, Math.min(1, (my / window.innerHeight - 0.5) * 2))

@@ -21,7 +21,7 @@ import { CountUp } from '@/components/anim'
 // react-useanimations נטען רק בצד-לקוח (lottie נשען על DOM)
 const UseAnimations = dynamic(() => import('react-useanimations'), { ssr: false })
 import calendar from 'react-useanimations/lib/calendar'
-import video from 'react-useanimations/lib/video'
+import radioButton from 'react-useanimations/lib/radioButton'
 import settings from 'react-useanimations/lib/settings'
 import share from 'react-useanimations/lib/share'
 
@@ -254,7 +254,7 @@ export function StatsGhost() {
 type LottieAnim = any
 const STEPS: { anim: LottieAnim; fallback: LucideIcon; t: string; d: string }[] = [
   { anim: calendar, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
-  { anim: video, fallback: Camera, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
+  { anim: radioButton, fallback: Camera, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
   { anim: settings, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
   { anim: share, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
 ]
@@ -268,14 +268,14 @@ function StepRow({ step }: { step: (typeof STEPS)[number] }) {
 
   return (
     <div ref={ref} className="relative pr-16 sm:pr-24">
-      {/* נקודת ציר — ממורכזת על המסילה (right:30px), בגובה מרכז האייקון */}
-      <span className="absolute right-[20px] top-10 -translate-y-1/2 sm:top-14">
+      {/* נקודת ציר — טבעת חלולה שמתמלאת בכתום בכניסה לשלב (right:30px) */}
+      <span className="absolute right-[19px] top-10 -translate-y-1/2 sm:top-14">
         <motion.span
-          initial={{ scale: 0.2, opacity: 0 }}
-          animate={inView ? { scale: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="block h-5 w-5 rounded-full ring-4 ring-background"
-          style={{ background: ACCENT }}
+          initial={{ scale: 0.5, backgroundColor: 'rgba(255,104,44,0)' }}
+          animate={inView ? { scale: 1, backgroundColor: 'rgba(255,104,44,1)' } : {}}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="block h-[22px] w-[22px] rounded-full ring-4 ring-background"
+          style={{ border: `3px solid ${ACCENT}` }}
         />
       </span>
 
@@ -289,7 +289,7 @@ function StepRow({ step }: { step: (typeof STEPS)[number] }) {
         >
           {mounted && inView ? (
             <span className="[&_svg]:!h-12 [&_svg]:!w-12 sm:[&_svg]:!h-16 sm:[&_svg]:!w-16">
-              <UseAnimations animation={step.anim} size={64} strokeColor="currentColor" autoplay loop={false} />
+              <UseAnimations animation={step.anim} size={64} strokeColor="currentColor" autoplay loop />
             </span>
           ) : (
             <Fallback className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.6} />
