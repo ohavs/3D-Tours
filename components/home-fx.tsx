@@ -2,29 +2,105 @@
 
 // ============================================================
 // components/home-fx.tsx — אפקטי הגלילה של דף הבית (נבחרו במעבדה):
-//   ExperienceBand — גרדיאנט חם רציף + זוהר כתום (אפקט 1).
-//                    מודע-מצב: נצבע ל*צבע ההפוך* למצב האתר —
-//                    בבהיר צולל לכהה, בכהה עולה לבהיר.
-//   AboutSplit     — "קצת עליי" כסקשן מפוצל לשני צדדים (היפוך-מצב).
-//   StatsGhost     — מספרים עם כיתוב-רפאים "360°" ב-parallax (אפקט 2)
-//   ProcessThread  — "איך זה עובד" עם חוט כתום שמצייר את עצמו (אפקט 3)
-//   ParallaxGhost  — כיתוב-רפאים כתום ב-parallax לרקע סקשנים (הטמעה/מחירים/שאלות)
+//   ExperienceBand — גרדיאנט חם רציף + זוהר כתום, מודע-מצב (אפקט 1).
+//   AboutSplit     — "קצת עליי" כסקשן מפוצל (פאנל היפוך-מצב מרוכך).
+//   StatsGhost     — מספרים עם כיתוב-רפאים "360°" ב-parallax (אפקט 2).
+//   ProcessThread  — "איך זה עובד" ענק: אייקונים מונפשים (react-useanimations)
+//                    + כותרות בהקלדה עם גל-צבע כתום, הכל מונפש בכניסה לתצוגה.
+//   TypeColorText  — הקלדת טקסט עם גל צביעה כתום הדרגתי.
+//   ParallaxGhost  — כיתוב-רפאים כתום ב-parallax לרקע סקשנים תחתונים.
 // ============================================================
 
-import { useRef } from 'react'
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useTheme } from 'next-themes'
-import { CalendarCheck, Camera, Boxes, Link2, Check } from 'lucide-react'
+import { CalendarCheck, Camera, Boxes, Link2, Check, type LucideIcon } from 'lucide-react'
 import { CountUp } from '@/components/anim'
 
+// react-useanimations נטען רק בצד-לקוח (lottie נשען על DOM)
+const UseAnimations = dynamic(() => import('react-useanimations'), { ssr: false })
+import calendar from 'react-useanimations/lib/calendar'
+import video from 'react-useanimations/lib/video'
+import settings from 'react-useanimations/lib/settings'
+import share from 'react-useanimations/lib/share'
+
 const ACCENT = '#ff682c'
+const EASE = [0.22, 1, 0.36, 1] as const
 
 // פלטות מודעות-מצב: ה"שיא" של הבאנד הוא תמיד ההפך מקנבס הדף.
-//   light → הדף בהיר, הבאנד צולל לכהה חם.
-//   dark  → הדף כהה, הבאנד עולה לבהיר חם.
 const PALETTE = {
   light: { base: '#ffffff', peak: '#140f0b', baseTx: '#0a0a0a', peakTx: '#fff3ea', baseSub: '#6b6b6b', peakSub: '#ffd9c4' },
   dark: { base: '#0a0a0a', peak: '#f7f1ea', baseTx: '#fafafa', peakTx: '#1a1410', baseSub: '#a3a3a3', peakSub: '#5a4d40' },
+}
+
+// ════════ הקלדה + גל צביעה כתום הדרגתי ════════
+// כל אות נחשפת בתורה (הקלדה), מתחילה בכתום ומתיישבת לצבע הסופי —
+// יוצרת "גל" כתום שרץ אחרי ראש ההקלדה.
+export function TypeColorText({
+  text,
+  className,
+  finalColor = 'var(--foreground)',
+  stagger = 0.05,
+  delay = 0,
+  start = true,
+  caret = true,
+}: {
+  text: string
+  className?: string
+  finalColor?: string
+  stagger?: number
+  delay?: number
+  start?: boolean
+  caret?: boolean
+}) {
+  const chars = Array.from(text)
+  const [typing, setTyping] = useState(false)
+
+  useEffect(() => {
+    if (!start) return
+    setTyping(true)
+    const ms = (delay + chars.length * stagger) * 1000 + 650
+    const t = setTimeout(() => setTyping(false), ms)
+    return () => clearTimeout(t)
+  }, [start, chars.length, stagger, delay])
+
+  return (
+    <motion.span
+      className={className}
+      aria-label={text}
+      initial="hidden"
+      animate={start ? 'show' : 'hidden'}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: stagger, delayChildren: delay } } }}
+      style={{ display: 'inline-block', direction: 'rtl' }}
+    >
+      {chars.map((c, i) => (
+        <motion.span
+          key={i}
+          aria-hidden
+          variants={{
+            hidden: { opacity: 0, y: '0.32em' },
+            show: {
+              opacity: 1,
+              y: 0,
+              color: [ACCENT, ACCENT, finalColor],
+              transition: { duration: 0.5, times: [0, 0.35, 1], ease: 'easeOut' },
+            },
+          }}
+          style={{ display: 'inline-block', whiteSpace: 'pre' }}
+        >
+          {c}
+        </motion.span>
+      ))}
+      {caret && typing && (
+        <span
+          aria-hidden
+          className="ml-1 inline-block h-[0.82em] w-[3px] translate-y-[0.12em] animate-pulse rounded-full align-middle"
+          style={{ background: ACCENT }}
+        />
+      )}
+    </motion.span>
+  )
 }
 
 // ── אפקט 1: באנד חוויה — גרדיאנט חם רציף, מודע-מצב ──
@@ -34,7 +110,6 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
   const { resolvedTheme } = useTheme()
   const pal = resolvedTheme === 'dark' ? PALETTE.dark : PALETTE.light
 
-  // base → peak (שיא) → base, עם החזרה לאט (מתוח על המחצית האחרונה).
   const stops = [0, 0.3, 0.48, 1]
   const bg = useTransform(scrollYProgress, stops, [pal.base, pal.peak, pal.peak, pal.base])
   const color = useTransform(scrollYProgress, stops, [pal.baseTx, pal.peakTx, pal.peakTx, pal.baseTx])
@@ -65,86 +140,74 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
   )
 }
 
-// ── "קצת עליי" — סקשן מפוצל לשני צדדים (מודע-מצב דרך הטוקנים) ──
-// פאנל אחד בצבע ההפוך למצב (bg-foreground), השני בקנבס הדף. שני
-// הצדדים מחליקים פנימה מהקצוות בכניסה לתצוגה — תחושת "פיצול".
+// ── "קצת עליי" — סקשן מפוצל (פאנל היפוך-מצב כקלף מרוכך, בלי חיתוך חד) ──
 const ABOUT_POINTS = ['מגיע אליך עם כל הציוד', 'סריקת 360° מלאה של הנכס', 'מסירה תוך 48 שעות']
 
 export function AboutSplit() {
   const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
-  const yDark = useTransform(scrollYProgress, [0, 1], ['-5%', '5%'])
-  const yLight = useTransform(scrollYProgress, [0, 1], ['5%', '-5%'])
-  const ease = [0.22, 1, 0.36, 1] as const
+  const inView = useInView(ref, { once: true, margin: '-15%' })
 
   return (
-    <section ref={ref} className="relative grid min-h-screen overflow-hidden md:grid-cols-2">
-      {/* פאנל היפוך-מצב: כהה בבהיר, בהיר בכהה */}
-      <motion.div
-        initial={{ x: 48, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true, margin: '-12%' }}
-        transition={{ duration: 0.7, ease }}
-        className="relative flex items-center justify-center overflow-hidden bg-foreground px-8 py-24 sm:px-12"
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(60% 50% at 70% 28%, ${ACCENT}29, transparent 70%)` }}
-        />
-        <motion.div style={{ y: yDark }} className="relative max-w-md">
-          <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-[0.2em] text-background/60">
-            <span className="h-2 w-2 rounded-full" style={{ background: ACCENT }} />
-            מי מאחורי העדשה
-          </span>
-          <h2
-            className="mt-5 font-display font-black leading-[0.9] text-background"
-            style={{ fontSize: 'clamp(2.6rem,7vw,5.5rem)', letterSpacing: '-0.04em' }}
-          >
-            קצת
-            <br />
-            עליי<span style={{ color: ACCENT }}>.</span>
-          </h2>
+    <section ref={ref} className="relative overflow-hidden bg-background py-14 sm:py-24">
+      <div className="mx-auto grid max-w-[1320px] items-stretch gap-5 px-5 sm:gap-7 sm:px-6 md:grid-cols-2">
+        {/* פאנל היפוך-מצב — קלף מעוגל עם פינות רכות (בלי קצוות חדים) */}
+        <motion.div
+          initial={{ opacity: 0, x: 36 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.75, ease: EASE }}
+          className="relative flex items-center justify-center overflow-hidden rounded-[2rem] bg-foreground px-8 py-20 sm:rounded-[2.6rem] sm:px-12 md:min-h-[78vh]"
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(65% 55% at 72% 30%, ${ACCENT}2e, transparent 72%)` }}
+          />
+          <div className="relative max-w-md text-center md:text-right">
+            <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-[0.2em] text-background/55">
+              <span className="h-2 w-2 rounded-full" style={{ background: ACCENT }} />
+              מי מאחורי העדשה
+            </span>
+            <h2
+              className="mt-6 font-display font-black leading-[0.82] text-background"
+              style={{ fontSize: 'clamp(3.6rem,12vw,9.5rem)', letterSpacing: '-0.05em' }}
+            >
+              קצת
+              <br />
+              עליי<span style={{ color: ACCENT }}>.</span>
+            </h2>
+          </div>
         </motion.div>
-      </motion.div>
 
-      {/* פאנל קנבס-הדף: טקסט + נקודות מפתח */}
-      <motion.div
-        initial={{ x: -48, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true, margin: '-12%' }}
-        transition={{ duration: 0.7, ease, delay: 0.08 }}
-        className="relative flex items-center bg-background px-8 py-24 sm:px-12"
-      >
-        <motion.div style={{ y: yLight }} className="max-w-md">
-          <p className="text-body-lg leading-relaxed text-foreground">
-            אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה.
-          </p>
-          <p className="mt-4 text-body leading-relaxed text-muted-foreground">
-            מגיע אליך, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה — עם לינק וקוד מוכן לאתר שלך.
-          </p>
-          <ul className="mt-8 space-y-3.5">
-            {ABOUT_POINTS.map((t) => (
-              <li key={t} className="flex items-center gap-3 text-body font-medium text-foreground">
-                <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                  style={{ background: `${ACCENT}1f` }}
-                >
-                  <Check size={14} strokeWidth={3} style={{ color: ACCENT }} />
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
+        {/* פאנל קנבס-הדף — טקסט + נקודות מפתח */}
+        <motion.div
+          initial={{ opacity: 0, x: -36 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.75, ease: EASE, delay: 0.1 }}
+          className="flex items-center px-2 sm:px-6 md:py-10"
+        >
+          <div className="max-w-md">
+            <p className="text-body-lg leading-relaxed text-foreground sm:text-subheading">
+              אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה.
+            </p>
+            <p className="mt-5 text-body leading-relaxed text-muted-foreground sm:text-body-lg">
+              מגיע אליך, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה — עם לינק וקוד מוכן לאתר שלך.
+            </p>
+            <ul className="mt-9 space-y-4">
+              {ABOUT_POINTS.map((t) => (
+                <li key={t} className="flex items-center gap-3.5 text-body font-medium text-foreground sm:text-body-lg">
+                  <span
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                    style={{ background: `${ACCENT}1f` }}
+                  >
+                    <Check size={16} strokeWidth={3} style={{ color: ACCENT }} />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
-      </motion.div>
-
-      {/* קו כתום דק שמפריד בין הצדדים (דסקטופ) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 md:block"
-        style={{ background: `linear-gradient(to bottom, transparent, ${ACCENT}66, transparent)` }}
-      />
+      </div>
     </section>
   )
 }
@@ -184,57 +247,97 @@ export function StatsGhost() {
   )
 }
 
-// ── אפקט 3: "איך זה עובד" עם חוט כתום ──
-const STEPS = [
-  { icon: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך. אני מגיע עם כל הציוד.', at: 0.16 },
-  { icon: Camera, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס.', at: 0.42 },
-  { icon: Boxes, t: 'בנייה', d: 'מחבר את החדרים לסיור אינטראקטיבי חלק.', at: 0.68 },
-  { icon: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה — תוך 48 שעות.', at: 0.92 },
+// ════════ אפקט 3: "איך זה עובד" — ענק, עם אייקונים מונפשים ════════
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LottieAnim = any
+const STEPS: { anim: LottieAnim; fallback: LucideIcon; t: string; d: string }[] = [
+  { anim: calendar, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
+  { anim: video, fallback: Camera, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
+  { anim: settings, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
+  { anim: share, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
 ]
 
-// מיקום מאוחד למסילה ולנקודות: מרכז שתיהן נמצא ב-right:24px מקצה
-// המכל. המסילה ברוחב 2px ממורכזת על 24, והנקודות (16px) ממוקמות
-// כך שמרכזן יושב על אותו ציר בדיוק — מסודר ואחיד.
-export function ProcessThread() {
+function StepRow({ step }: { step: (typeof STEPS)[number] }) {
   const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start center', 'end center'] })
-  const d0 = useTransform(scrollYProgress, [STEPS[0].at - 0.03, STEPS[0].at], [0.25, 1])
-  const d1 = useTransform(scrollYProgress, [STEPS[1].at - 0.03, STEPS[1].at], [0.25, 1])
-  const d2 = useTransform(scrollYProgress, [STEPS[2].at - 0.03, STEPS[2].at], [0.25, 1])
-  const d3 = useTransform(scrollYProgress, [STEPS[3].at - 0.03, STEPS[3].at], [0.25, 1])
-  const scales: MotionValue<number>[] = [d0, d1, d2, d3]
+  const inView = useInView(ref, { once: true, margin: '-25%' })
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const Fallback = step.fallback
 
   return (
-    <section ref={ref} className="mx-auto max-w-[1240px] px-6 py-24">
-      <h2 className="mb-16 font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-        איך זה עובד
+    <div ref={ref} className="relative pr-16 sm:pr-24">
+      {/* נקודת ציר — ממורכזת על המסילה (right:30px), בגובה מרכז האייקון */}
+      <span className="absolute right-[20px] top-10 -translate-y-1/2 sm:top-14">
+        <motion.span
+          initial={{ scale: 0.2, opacity: 0 }}
+          animate={inView ? { scale: 1, opacity: 1 } : {}}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="block h-5 w-5 rounded-full ring-4 ring-background"
+          style={{ background: ACCENT }}
+        />
+      </span>
+
+      <div className="flex items-start gap-5 sm:gap-9">
+        {/* קופסת אייקון מונפש */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.82, y: 14 }}
+          animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+          transition={{ duration: 0.55, ease: EASE }}
+          className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-muted text-foreground sm:h-28 sm:w-28"
+        >
+          {mounted && inView ? (
+            <span className="[&_svg]:!h-12 [&_svg]:!w-12 sm:[&_svg]:!h-16 sm:[&_svg]:!w-16">
+              <UseAnimations animation={step.anim} size={64} strokeColor="currentColor" autoplay loop={false} />
+            </span>
+          ) : (
+            <Fallback className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.6} />
+          )}
+        </motion.div>
+
+        {/* כותרת בהקלדה + תיאור */}
+        <div className="pt-1.5 sm:pt-4">
+          <TypeColorText
+            text={step.t}
+            start={inView}
+            stagger={0.07}
+            className="block font-display text-[clamp(2.1rem,5.5vw,4rem)] font-black leading-[0.95] tracking-tight"
+          />
+          <p className="mt-3 max-w-xl text-body leading-relaxed text-muted-foreground sm:mt-4 sm:text-subheading">
+            {step.d}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ProcessThread() {
+  const ref = useRef<HTMLDivElement>(null)
+  const headRef = useRef<HTMLHeadingElement>(null)
+  const headIn = useInView(headRef, { once: true, margin: '-20%' })
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start center', 'end center'] })
+
+  return (
+    <section ref={ref} className="mx-auto max-w-[1320px] px-6 py-28 sm:py-40">
+      <h2
+        ref={headRef}
+        className="mb-16 font-display font-black leading-[0.95] tracking-tight text-foreground sm:mb-28"
+        style={{ fontSize: 'clamp(2.6rem,8vw,6.5rem)', letterSpacing: '-0.04em' }}
+      >
+        <TypeColorText text="איך זה עובד" start={headIn} stagger={0.06} className="font-display" />
       </h2>
+
       <div className="relative">
-        {/* קו רקע — ממורכז על right:24px */}
-        <div className="absolute right-[23px] top-3 bottom-3 w-[2px] bg-border" />
+        {/* מסילת רקע — ממורכזת על right:30px */}
+        <div className="absolute right-[29px] top-10 bottom-10 w-[2px] bg-border" />
         {/* חוט כתום שמצייר את עצמו — אותו ציר בדיוק */}
         <motion.div
           style={{ scaleY: scrollYProgress, background: ACCENT }}
-          className="absolute right-[23px] top-3 bottom-3 w-[2px] origin-top"
+          className="absolute right-[29px] top-10 bottom-10 w-[2px] origin-top"
         />
-        <div className="space-y-16">
+        <div className="space-y-20 sm:space-y-32">
           {STEPS.map((s, i) => (
-            <div key={i} className="relative pr-14">
-              {/* נקודה — מרכזה (16px) יושב על right:24px, בדיוק על המסילה */}
-              <motion.span
-                style={{ scale: scales[i], background: ACCENT }}
-                className="absolute right-[16px] top-1.5 h-4 w-4 rounded-full ring-4 ring-background"
-              />
-              <div className="flex items-start gap-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground">
-                  <s.icon size={22} />
-                </span>
-                <div>
-                  <h3 className="font-display text-subheading font-bold text-foreground">{s.t}</h3>
-                  <p className="mt-1.5 max-w-md text-body text-muted-foreground">{s.d}</p>
-                </div>
-              </div>
-            </div>
+            <StepRow key={i} step={s} />
           ))}
         </div>
       </div>
@@ -243,7 +346,6 @@ export function ProcessThread() {
 }
 
 // ── כיתוב-רפאים כתום ב-parallax (רקע לסקשנים התחתונים) ──
-// ממוקם בתוך parent עם position:relative ו-overflow-hidden.
 export function ParallaxGhost({
   text,
   size = '30vw',
