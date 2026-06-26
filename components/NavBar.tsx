@@ -130,6 +130,22 @@ export default function NavBar() {
     </a>
   ))
 
+  // בתפריט הממוזג (scrolled) מוסיפים CTA בתחתית כי הוא נעלם מהפיל
+  const navLinksWithCta = (
+    <>
+      {navLinks}
+      <div className="mt-1 border-t border-border pt-1">
+        <Link
+          href="/tour/test"
+          onClick={() => setOpen(false)}
+          className="block rounded-2xl bg-foreground px-4 py-3 text-center text-body font-semibold text-background transition-opacity hover:opacity-85"
+        >
+          סיור לדוגמה
+        </Link>
+      </div>
+    </>
+  )
+
   return (
     <div ref={wrapRef} className="fixed inset-x-0 top-4 z-50 px-4">
 
@@ -228,7 +244,7 @@ export default function NavBar() {
                       {...DROP_MOTION}
                       className={`mt-2 w-[min(90vw,280px)] origin-top ${DROPDOWN}`}
                     >
-                      {navLinks}
+                      {navLinksWithCta}
                     </motion.div>
                   )}
                 </AnimatePresence>
