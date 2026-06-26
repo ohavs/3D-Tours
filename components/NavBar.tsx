@@ -117,10 +117,10 @@ export default function NavBar() {
 
         <ThemeToggle className="ml-1" />
 
-        {/* כפתור — היפוך צבעים אדיטוריאלי (שחור בבהיר, לבן בכהה) */}
+        {/* כפתור — מוסתר במובייל, גלוי מדסקטופ (מובייל: נמצא בתפריט) */}
         <Link
           href="/tour/test"
-          className="ml-1 rounded-full bg-foreground px-5 py-2.5 text-caption font-semibold text-background transition-opacity hover:opacity-85"
+          className="ml-1 hidden rounded-full bg-foreground px-5 py-2.5 text-caption font-semibold text-background transition-opacity hover:opacity-85 sm:inline-flex"
         >
           סיור לדוגמה
         </Link>
@@ -162,6 +162,16 @@ export default function NavBar() {
                 {l.label}
               </a>
             ))}
+            {/* כפתור ה-CTA גם בתפריט המובייל */}
+            <div className="mt-1 border-t border-border pt-1">
+              <Link
+                href="/tour/test"
+                onClick={() => setOpen(false)}
+                className="block rounded-2xl bg-foreground px-4 py-3 text-center text-body font-semibold text-background transition-opacity hover:opacity-85"
+              >
+                סיור לדוגמה
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
