@@ -27,7 +27,8 @@ export default function NavBar() {
     if (
       pathname?.startsWith('/tour/') ||
       pathname?.startsWith('/admin') ||
-      pathname?.startsWith('/studio')
+      pathname?.startsWith('/studio') ||
+      pathname?.startsWith('/lab')
     )
       return
     const sections = LINKS.map((l) => document.getElementById(l.id)).filter(
@@ -50,7 +51,8 @@ export default function NavBar() {
   if (
     pathname?.startsWith('/tour/') ||
     pathname?.startsWith('/admin') ||
-    pathname?.startsWith('/studio')
+    pathname?.startsWith('/studio') ||
+    pathname?.startsWith('/lab')
   )
     return null
 
