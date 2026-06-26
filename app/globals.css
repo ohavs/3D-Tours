@@ -81,30 +81,30 @@
   --font-sans: var(--font-discovery), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-discovery), ui-sans-serif, system-ui, sans-serif;
 
-  /* --- סולם טיפוגרפי אדיטוריאלי --- */
-  --text-caption: 14px;
+  /* --- סולם טיפוגרפי אדיטוריאלי (כפול ב---a11y-scale לנגישות) --- */
+  --text-caption: calc(14px * var(--a11y-scale, 1));
   --text-caption--line-height: 1.45;
-  --text-body: 17px;
+  --text-body: calc(17px * var(--a11y-scale, 1));
   --text-body--line-height: 1.55;
-  --text-body-lg: 21px;
+  --text-body-lg: calc(21px * var(--a11y-scale, 1));
   --text-body-lg--line-height: 1.45;
-  --text-subheading: 27px;
+  --text-subheading: calc(27px * var(--a11y-scale, 1));
   --text-subheading--line-height: 1.2;
   --text-subheading--letter-spacing: -0.5px;
-  --text-heading-sm: 36px;
+  --text-heading-sm: calc(36px * var(--a11y-scale, 1));
   --text-heading-sm--line-height: 1.1;
   --text-heading-sm--letter-spacing: -0.8px;
-  --text-heading: 52px;
+  --text-heading: calc(52px * var(--a11y-scale, 1));
   --text-heading--line-height: 1.04;
   --text-heading--letter-spacing: -1.3px;
-  --text-heading-lg: 72px;
+  --text-heading-lg: calc(72px * var(--a11y-scale, 1));
   --text-heading-lg--line-height: 0.98;
   --text-heading-lg--letter-spacing: -2px;
-  --text-display: 96px;
+  --text-display: calc(96px * var(--a11y-scale, 1));
   --text-display--line-height: 0.92;
   --text-display--letter-spacing: -3px;
   /* טיפוגרפיה ענקית רספונסיבית ל-hero אדיטוריאלי */
-  --text-mega: clamp(2.5rem, 9vw, 9rem);
+  --text-mega: calc(clamp(2.5rem, 9vw, 9rem) * var(--a11y-scale, 1));
   --text-mega--line-height: 0.92;
   --text-mega--letter-spacing: -0.04em;
 
@@ -212,4 +212,118 @@ html.theme-flip pre {
 }
 .psv-loader-container {
   display: none !important;
+}
+
+/* ============================================================
+   נגישות — תפריט התאמות (ת"י 5568 / WCAG 2.0 AA)
+   הפילטרים חלים על #a11y-root בלבד, כדי שכפתור הנגישות יישאר תקין.
+   ============================================================ */
+
+/* קישור "דלג לתוכן" */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 200;
+  transform: translateY(-150%);
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* פוקוס נראה תמיד (ניווט מקלדת) */
+:focus-visible {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 3px;
+}
+
+/* --- מצבי ניגודיות/צבע (mutually exclusive ב-JS) --- */
+html.a11y-grayscale #a11y-root {
+  filter: grayscale(1);
+}
+html.a11y-invert #a11y-root {
+  filter: invert(1) hue-rotate(180deg);
+}
+html.a11y-contrast #a11y-root {
+  filter: contrast(1.4);
+}
+
+/* --- הדגשת קישורים --- */
+html.a11y-links #a11y-root a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* --- הדגשת כותרות --- */
+html.a11y-headings #a11y-root :is(h1, h2, h3, h4) {
+  outline: 2px dashed var(--accent);
+  outline-offset: 6px;
+}
+
+/* --- פונט קריא --- */
+html.a11y-readable #a11y-root *:not(svg):not(i) {
+  font-family: Arial, 'Segoe UI', Tahoma, sans-serif !important;
+  letter-spacing: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* --- ריווח שורות מוגדל --- */
+html.a11y-spacing #a11y-root :is(p, li, span, a, h1, h2, h3, h4) {
+  line-height: 1.9 !important;
+  letter-spacing: 0.04em !important;
+  word-spacing: 0.12em !important;
+}
+
+/* --- עצירת אנימציות --- */
+html.a11y-stop #a11y-root *,
+html.a11y-stop #a11y-root *::before,
+html.a11y-stop #a11y-root *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* --- סמן גדול (משבית את הסמן המותאם) --- */
+html.a11y-bigcursor,
+html.a11y-bigcursor * {
+  cursor:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cpath d='M10 6 L10 44 L21 33 L28 48 L35 45 L28 30 L43 30 Z' fill='black' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E")
+      8 6,
+    auto !important;
+}
+
+/* --- סמן מותאם: מסתירים את הסמן המקורי כשהוא פעיל --- */
+html.cursor-hidden,
+html.cursor-hidden a,
+html.cursor-hidden button,
+html.cursor-hidden [role='button'],
+html.cursor-hidden input,
+html.cursor-hidden textarea,
+html.cursor-hidden label,
+html.cursor-hidden select {
+  cursor: none !important;
+}
+
+/* מדריך קריאה (פס אופקי שעוקב אחרי הסמן) */
+.a11y-reading-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 14px;
+  z-index: 190;
+  pointer-events: none;
+  background: rgba(255, 104, 44, 0.18);
+  border-top: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
 }

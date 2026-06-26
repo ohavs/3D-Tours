@@ -7,12 +7,7 @@
 import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import { Reveal, CountUp } from '@/components/anim'
-import {
-  ReactiveText,
-  Magnetic,
-  CursorGlow,
-  ScrollThemeFlip,
-} from '@/components/interactive'
+import { ReactiveText, Magnetic, ScrollModes } from '@/components/interactive'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -31,7 +26,7 @@ const FAQ_ITEMS: FaqItem[] = [
 export default function HomePage() {
   return (
     <main className="flex-1">
-      <CursorGlow />
+      <ScrollModes />
       {/* ======================= HERO ======================= */}
       <section className="relative overflow-hidden">
         {/* רקע עדין: זוהר כתום + מרקם נקודות (מותאם-מצב) */}
@@ -174,10 +169,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== אזור "מצב כהה" — האתר מתחלף ל-dark בזמן הגלילה דרכו ===== */}
-      <ScrollThemeFlip>
-      {/* ===================== אודות ===================== */}
-      <section className="mx-auto max-w-[1240px] px-6 py-24">
+      {/* ===================== אודות (אזור מצב מתחלף) ===================== */}
+      <section data-mode="dark" className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
           <Reveal>
             <ReactiveText
@@ -209,7 +202,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== מה מקבלים + קוד הטמעה ===================== */}
-      <section className="mx-auto max-w-[1240px] px-6 pb-24">
+      <section data-mode="light" className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal className="min-w-0">
             <div>
@@ -245,16 +238,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      </ScrollThemeFlip>
       {/* ===================== מחירים ===================== */}
-      <section id="pricing" className="mx-auto max-w-[1240px] px-6 pb-24">
+      <section id="pricing" data-mode="dark" className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
           <Reveal>
-            <h2 className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-              תמחור הוגן,
-              <br />
-              לפי הנכס.
-            </h2>
+            <ReactiveText
+              as="h2"
+              className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
+              text={'תמחור הוגן,\nלפי הנכס.'}
+            />
           </Reveal>
           <Reveal delay={0.1}>
             <div>
@@ -278,11 +270,13 @@ export default function HomePage() {
       </section>
 
       {/* ===================== FAQ ===================== */}
-      <section id="faq" className="mx-auto max-w-[1240px] px-6 pb-24">
+      <section id="faq" data-mode="light" className="mx-auto max-w-[1240px] px-6 py-24">
         <Reveal>
-          <h2 className="mb-10 font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-            שאלות נפוצות
-          </h2>
+          <ReactiveText
+            as="h2"
+            className="mb-10 block font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
+            text={'שאלות נפוצות'}
+          />
         </Reveal>
         <Reveal delay={0.1}>
           <Faq items={FAQ_ITEMS} />
@@ -350,6 +344,7 @@ export default function HomePage() {
               <a href="#pricing" className="hover:text-foreground">מחירים</a>
               <a href="#faq" className="hover:text-foreground">שאלות</a>
               <a href="#contact" className="hover:text-foreground">צור קשר</a>
+              <Link href="/accessibility" className="hover:text-foreground">נגישות</Link>
             </div>
             <p className="text-caption text-muted-foreground/70">
               © {new Date().getFullYear()} tour.360 — כל הזכויות שמורות

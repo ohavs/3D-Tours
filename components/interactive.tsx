@@ -169,44 +169,56 @@ export function CursorGlow() {
   )
 }
 
-// ---------- ScrollThemeFlip: החלפת מצב חלקה בגלילה ----------
-// כשהאזור חוצה את מרכז המסך → dark; אחרת → חוזרים למצב הבסיסי.
-// משנים את ה-class ישירות (לא דרך next-themes) כדי לא "ללכלך" את
-// ההעדפה השמורה של המשתמש. מי שכבר ב-dark — לא רואה הבהוב.
-export function ScrollThemeFlip({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
+// ---------- ScrollModes: החלפת Light/Dark מתחלפת לאורך הסקשנים ----------
+// כל סקשן עם data-mode="dark"/"light" קובע את המצב כשהוא במרכז המסך,
+// כך שבירידה דרך האמצע המצבים מתחלפים; כשאין סקשן כזה (כמו "צור קשר")
+// חוזרים למצב הבסיסי שבו המשתמש התחיל. עובד בשני הכיוונים.
+// משנים class ישירות (לא next-themes) כדי לא ללכלך את ההעדפה השמורה.
+export function ScrollModes() {
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
     const html = document.documentElement
-    // מצב בסיס = הערכת התצוגה כרגע (העדפת המשתמש), נלכד פעם אחת
     const baseDark = html.classList.contains('dark')
+    const zones = Array.from(document.querySelectorAll<HTMLElement>('[data-mode]'))
+    if (!zones.length) return
+    const active = new Set<HTMLElement>()
+    let timer: ReturnType<typeof setTimeout> | null = null
 
-    function apply(dark: boolean) {
-      const isDark = html.classList.contains('dark')
-      if (isDark === dark) return
+    function applyDark(dark: boolean) {
+      if (html.classList.contains('dark') === dark) return
       html.classList.add('theme-flip')
       html.classList.toggle('dark', dark)
       html.classList.toggle('light', !dark)
-      if (timer.current) clearTimeout(timer.current)
-      timer.current = setTimeout(() => html.classList.remove('theme-flip'), 650)
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => html.classList.remove('theme-flip'), 650)
+    }
+    function recompute() {
+      let chosen: HTMLElement | null = null
+      for (const z of zones) {
+        if (active.has(z)) {
+          chosen = z
+          break
+        }
+      }
+      applyDark(chosen ? chosen.dataset.mode === 'dark' : baseDark)
     }
 
     const obs = new IntersectionObserver(
-      ([e]) => apply(e.isIntersecting ? true : baseDark),
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) active.add(e.target as HTMLElement)
+          else active.delete(e.target as HTMLElement)
+        }
+        recompute()
+      },
       { rootMargin: '-50% 0px -50% 0px', threshold: 0 },
     )
-    obs.observe(el)
+    zones.forEach((z) => obs.observe(z))
     return () => {
       obs.disconnect()
-      if (timer.current) clearTimeout(timer.current)
-      // משחזרים את מצב הבסיס ביציאה
+      if (timer) clearTimeout(timer)
       html.classList.toggle('dark', baseDark)
       html.classList.toggle('light', !baseDark)
     }
   }, [])
-
-  return <div ref={ref}>{children}</div>
+  return null
 }

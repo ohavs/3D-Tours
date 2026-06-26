@@ -6,6 +6,8 @@ import SmoothScroll from "@/components/SmoothScroll";
 import ScrollProgress from "@/components/ScrollProgress";
 import { NotificationProvider } from "@/components/ui/Notifications";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Accessibility from "@/components/Accessibility";
+import CustomCursor from "@/components/CustomCursor";
 
 // פונט מקומי — Discovery FS (כל 8 המשקלים), תומך עברית
 const discovery = localFont({
@@ -36,13 +38,25 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl" className={`${discovery.variable} antialiased`} suppressHydrationWarning>
       <body className="flex flex-col">
+        {/* דלג לתוכן (ניווט מקלדת) */}
+        <a href="#main-content" className="skip-link">
+          דלג לתוכן הראשי
+        </a>
         <ThemeProvider>
           <NotificationProvider>
-            <SmoothScroll>
-              <ScrollProgress />
-              <NavBar />
-              {children}
-            </SmoothScroll>
+            {/* כפתור הנגישות והסמן המותאם — מחוץ ל-#a11y-root כדי
+                שהפילטרים לא ישפיעו עליהם */}
+            <Accessibility />
+            <CustomCursor />
+            <div id="a11y-root" className="flex flex-1 flex-col">
+              <SmoothScroll>
+                <ScrollProgress />
+                <NavBar />
+                <div id="main-content" tabIndex={-1}>
+                  {children}
+                </div>
+              </SmoothScroll>
+            </div>
           </NotificationProvider>
         </ThemeProvider>
       </body>
