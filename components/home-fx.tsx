@@ -116,11 +116,13 @@ export function ExperienceBand({ title, subcopy }: { title: string; subcopy: str
   const color = useTransform(scrollYProgress, stops, [pal.baseTx, pal.peakTx, pal.peakTx, pal.baseTx])
   const sub = useTransform(scrollYProgress, stops, [pal.baseSub, pal.peakSub, pal.peakSub, pal.baseSub])
   const glow = useTransform(scrollYProgress, stops, [0, 0.6, 0.6, 0])
+  // fade בכניסה וביציאה — מרכך את הניגודיות החדה בקצוות הסקשן (בעיקר במובייל)
+  const fade = useTransform(scrollYProgress, [0, 0.12, 0.88, 1], [0, 1, 1, 0])
 
   return (
     <motion.section
       ref={ref}
-      style={{ background: bg, color }}
+      style={{ background: bg, color, opacity: fade }}
       className="relative grid min-h-[150vh] place-items-center overflow-hidden px-6"
     >
       <motion.div aria-hidden style={{ opacity: glow }} className="pointer-events-none absolute inset-0">
@@ -253,7 +255,7 @@ export function StatsGhost() {
 type LottieAnim = any
 type Step = { anim?: LottieAnim; speed?: number; camera?: boolean; fallback: LucideIcon; t: string; d: string }
 const STEPS: Step[] = [
-  { anim: calendar, speed: 0.6, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
+  { anim: calendar, speed: 0.4, fallback: CalendarCheck, t: 'תיאום', d: 'קובעים מועד שנוח לך, ואני מגיע עם כל הציוד עד הדלת.' },
   { camera: true, fallback: Aperture, t: 'צילום', d: 'סריקת 360° מלאה של כל החדרים — שעה־שעתיים בנכס, ואני זז.' },
   { anim: settings, speed: 0.8, fallback: Boxes, t: 'בנייה', d: 'מחבר את כל החדרים לסיור אינטראקטיבי אחד, חלק וזורם.' },
   { anim: share, speed: 0.9, fallback: Link2, t: 'מסירה', d: 'לינק ייחודי וקוד הטמעה מוכן לאתר — אצלך תוך 48 שעות.' },
@@ -268,7 +270,7 @@ function CameraLens() {
       animate={{ rotate: 360 }}
       transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
     >
-      <Aperture className="h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.6} />
+      <Aperture className="h-[60px] w-[60px]" strokeWidth={1.6} />
     </motion.div>
   )
 }
@@ -308,11 +310,11 @@ function StepRow({ step }: { step: (typeof STEPS)[number] }) {
           {step.camera ? (
             <CameraLens />
           ) : mounted && inView ? (
-            <span className="[&_svg]:!h-12 [&_svg]:!w-12 sm:[&_svg]:!h-16 sm:[&_svg]:!w-16">
-              <UseAnimations animation={step.anim} size={64} strokeColor="currentColor" autoplay loop speed={step.speed ?? 1} />
+            <span className="flex items-center justify-center">
+              <UseAnimations animation={step.anim} size={60} strokeColor="currentColor" autoplay loop speed={step.speed ?? 1} />
             </span>
           ) : (
-            <Fallback className="h-10 w-10 sm:h-14 sm:w-14" strokeWidth={1.6} />
+            <Fallback className="h-[52px] w-[52px]" strokeWidth={1.6} />
           )}
         </motion.div>
 

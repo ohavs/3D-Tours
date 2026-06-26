@@ -154,7 +154,7 @@ export default function Accessibility() {
         aria-expanded={open}
         aria-label="תפריט נגישות"
         className="fixed bottom-5 left-5 z-[120] flex h-14 w-14 items-center justify-center rounded-full bg-[#1a56db] text-white shadow-lg outline-offset-2 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"
-        style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.28)' }}
+        style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.28)', viewTransitionName: 'a11y-fab' }}
       >
         <A11yIcon size={28} />
       </button>
