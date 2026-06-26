@@ -169,6 +169,24 @@
   }
 }
 
+/* החלפת מצב חלקה בגלילה (ScrollThemeFlip) — מופעל רק בזמן ההחלפה */
+html.theme-flip,
+html.theme-flip body,
+html.theme-flip section,
+html.theme-flip header,
+html.theme-flip footer,
+html.theme-flip a,
+html.theme-flip p,
+html.theme-flip h1,
+html.theme-flip h2,
+html.theme-flip h3,
+html.theme-flip div,
+html.theme-flip span,
+html.theme-flip pre {
+  transition: background-color 0.55s ease, color 0.55s ease,
+    border-color 0.55s ease, fill 0.55s ease !important;
+}
+
 /* ============================================================
    Photo Sphere Viewer — התאמה למערכת העיצוב (פונט האתר, pill נקי)
    ============================================================ */

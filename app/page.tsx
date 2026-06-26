@@ -7,6 +7,12 @@
 import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import { Reveal, CountUp } from '@/components/anim'
+import {
+  ReactiveText,
+  Magnetic,
+  CursorGlow,
+  ScrollThemeFlip,
+} from '@/components/interactive'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -25,6 +31,7 @@ const FAQ_ITEMS: FaqItem[] = [
 export default function HomePage() {
   return (
     <main className="flex-1">
+      <CursorGlow />
       {/* ======================= HERO ======================= */}
       <section className="relative overflow-hidden">
         {/* רקע עדין: זוהר כתום + מרקם נקודות (מותאם-מצב) */}
@@ -56,11 +63,11 @@ export default function HomePage() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <h1 className="mt-6 font-display text-mega font-black leading-[0.9] tracking-tight text-foreground">
-              סורקים את הנכס.
-              <br />
-              <span className="text-muted-foreground">בונים</span> את הסיור.
-            </h1>
+            <ReactiveText
+              as="h1"
+              className="mt-6 font-display text-mega font-black leading-[0.9] tracking-tight text-foreground"
+              text={'סורקים את הנכס.\nבונים את הסיור.'}
+            />
           </Reveal>
 
           <div className="mt-10 grid items-end gap-12 md:grid-cols-[1fr_1.15fr]">
@@ -71,19 +78,23 @@ export default function HomePage() {
                   אינטראקטיבי — עם לינק וקוד הטמעה מוכן לאתר שלך.
                 </p>
                 <div className="mt-9 flex flex-wrap items-center gap-3">
-                  <Link
-                    href="/tour/test"
-                    className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-body font-semibold text-background transition-opacity hover:opacity-85"
-                  >
-                    ראו דוגמה חיה
-                    <ArrowLeft size={18} strokeWidth={2.4} />
-                  </Link>
-                  <a
-                    href="#contact"
-                    className="rounded-full border border-border-strong px-6 py-3 text-body font-semibold text-foreground transition-colors hover:bg-muted"
-                  >
-                    דברו איתי
-                  </a>
+                  <Magnetic>
+                    <Link
+                      href="/tour/test"
+                      className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-body font-semibold text-background transition-opacity hover:opacity-85"
+                    >
+                      ראו דוגמה חיה
+                      <ArrowLeft size={18} strokeWidth={2.4} />
+                    </Link>
+                  </Magnetic>
+                  <Magnetic strength={0.25}>
+                    <a
+                      href="#contact"
+                      className="inline-block rounded-full border border-border-strong px-6 py-3 text-body font-semibold text-foreground transition-colors hover:bg-muted"
+                    >
+                      דברו איתי
+                    </a>
+                  </Magnetic>
                 </div>
               </div>
             </Reveal>
@@ -121,11 +132,11 @@ export default function HomePage() {
       <section id="service" className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-end">
           <Reveal>
-            <h2 className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-              לא תמונות.
-              <br />
-              חוויית מקום.
-            </h2>
+            <ReactiveText
+              as="h2"
+              className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
+              text={'לא תמונות.\nחוויית מקום.'}
+            />
           </Reveal>
           <Reveal delay={0.1}>
             <p className="group rounded-2xl p-6 text-body-lg text-muted-foreground transition-colors duration-500 hover:bg-accent/[0.08] hover:text-foreground sm:p-8">
@@ -163,13 +174,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ===== אזור "מצב כהה" — האתר מתחלף ל-dark בזמן הגלילה דרכו ===== */}
+      <ScrollThemeFlip>
       {/* ===================== אודות ===================== */}
-      <section className="mx-auto max-w-[1240px] px-6 pb-24">
+      <section className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
           <Reveal>
-            <h2 className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-              קצת עליי
-            </h2>
+            <ReactiveText
+              as="h2"
+              className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
+              text={'קצת עליי'}
+            />
           </Reveal>
           <Reveal delay={0.1}>
             <div className="group rounded-2xl p-6 transition-colors duration-500 hover:bg-accent/[0.08] sm:p-8">
@@ -198,11 +213,11 @@ export default function HomePage() {
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal className="min-w-0">
             <div>
-              <h2 className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg">
-                לינק אחד.
-                <br />
-                ומוטמע אצלך באתר.
-              </h2>
+              <ReactiveText
+                as="h2"
+                className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
+                text={'לינק אחד.\nומוטמע אצלך באתר.'}
+              />
               <p className="mt-5 max-w-md text-body-lg text-muted-foreground">
                 בסיום מקבלים כתובת ייחודית לסיור, וקוד הטמעה (iframe) שמשבצים
                 ישירות במודעה או באתר — הסיור פשוט מופיע שם, חי.
@@ -230,6 +245,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      </ScrollThemeFlip>
       {/* ===================== מחירים ===================== */}
       <section id="pricing" className="mx-auto max-w-[1240px] px-6 pb-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
