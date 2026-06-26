@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
 import { Reveal } from '@/components/anim'
 import { ReactiveText, Magnetic } from '@/components/interactive'
-import { ExperienceBand, StatsGhost, ProcessThread, ParallaxGhost } from '@/components/home-fx'
+import { ExperienceBand, AboutSplit, StatsGhost, ProcessThread, ParallaxGhost } from '@/components/home-fx'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -123,23 +123,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── שני באנדי חוויה רצופים (כהה-אל-כהה, בלי הבזק לבן ביניהם) ── */}
-      {/* באנד 1 — נכנס לבהיר, מתכהה ו*נשאר כהה* */}
+      {/* אפקט 1 — באנד חוויה (גרדיאנט חם מודע-מצב: נצבע להפך מהמצב) */}
       <ExperienceBand
-        link="next"
         title={'לא תמונות.\nחוויית מקום.'}
         subcopy={
           'סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.'
         }
       />
-      {/* באנד 2 — ממשיך מכהה, ורק בסוף חוזר לבהיר */}
-      <ExperienceBand
-        link="prev"
-        title={'קצת עליי'}
-        subcopy={
-          'אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה: אני מגיע, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה אצלך.'
-        }
-      />
+
+      {/* "קצת עליי" — סקשן מפוצל לשני צדדים (היפוך-מצב + החלקה מהקצוות) */}
+      <AboutSplit />
 
       {/* אפקט 2 — מספרים עם כיתוב-רפאים "360°" ב-parallax */}
       <StatsGhost />

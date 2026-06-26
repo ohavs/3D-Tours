@@ -3,8 +3,9 @@
 // ============================================================
 // components/home-fx.tsx — אפקטי הגלילה של דף הבית (נבחרו במעבדה):
 //   ExperienceBand — גרדיאנט חם רציף + זוהר כתום (אפקט 1).
-//                    תומך בשרשור (link) כדי ליצור שני באנדים רצופים
-//                    בלי הבזק לבן ביניהם.
+//                    מודע-מצב: נצבע ל*צבע ההפוך* למצב האתר —
+//                    בבהיר צולל לכהה, בכהה עולה לבהיר.
+//   AboutSplit     — "קצת עליי" כסקשן מפוצל לשני צדדים (היפוך-מצב).
 //   StatsGhost     — מספרים עם כיתוב-רפאים "360°" ב-parallax (אפקט 2)
 //   ProcessThread  — "איך זה עובד" עם חוט כתום שמצייר את עצמו (אפקט 3)
 //   ParallaxGhost  — כיתוב-רפאים כתום ב-parallax לרקע סקשנים (הטמעה/מחירים/שאלות)
@@ -12,64 +13,33 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
-import { CalendarCheck, Camera, Boxes, Link2 } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { CalendarCheck, Camera, Boxes, Link2, Check } from 'lucide-react'
 import { CountUp } from '@/components/anim'
 
 const ACCENT = '#ff682c'
 
-const DARK = '#140f0b'
-const LIGHT = '#ffffff'
-const DARK_TX = '#fff3ea'
-const LIGHT_TX = '#0a0a0a'
-const DARK_SUB = '#ffd9c4'
-const LIGHT_SUB = '#6b6b6b'
+// פלטות מודעות-מצב: ה"שיא" של הבאנד הוא תמיד ההפך מקנבס הדף.
+//   light → הדף בהיר, הבאנד צולל לכהה חם.
+//   dark  → הדף כהה, הבאנד עולה לבהיר חם.
+const PALETTE = {
+  light: { base: '#ffffff', peak: '#140f0b', baseTx: '#0a0a0a', peakTx: '#fff3ea', baseSub: '#6b6b6b', peakSub: '#ffd9c4' },
+  dark: { base: '#0a0a0a', peak: '#f7f1ea', baseTx: '#fafafa', peakTx: '#1a1410', baseSub: '#a3a3a3', peakSub: '#5a4d40' },
+}
 
-// ── אפקט 1: באנד חוויה — גרדיאנט חם רציף ──
-// link='solo'  → בהיר→כהה→בהיר (סקשן בודד).
-// link='next'  → בהיר→כהה ו*נשאר כהה* בסוף (הראשון מבין זוג).
-// link='prev'  → מתחיל כהה, נשאר כהה, וחוזר לבהיר בסוף (השני מבין זוג).
-// כך שני באנדים רצופים מתחברים כהה-אל-כהה, בלי הבזק לבן באמצע.
-export function ExperienceBand({
-  title,
-  subcopy,
-  link = 'solo',
-}: {
-  title: string
-  subcopy: string
-  link?: 'solo' | 'next' | 'prev'
-}) {
+// ── אפקט 1: באנד חוויה — גרדיאנט חם רציף, מודע-מצב ──
+export function ExperienceBand({ title, subcopy }: { title: string; subcopy: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const { resolvedTheme } = useTheme()
+  const pal = resolvedTheme === 'dark' ? PALETTE.dark : PALETTE.light
 
-  let stops: number[]
-  let bgC: string[]
-  let coC: string[]
-  let suC: string[]
-  let glC: number[]
-  if (link === 'next') {
-    stops = [0, 0.35, 1]
-    bgC = [LIGHT, DARK, DARK]
-    coC = [LIGHT_TX, DARK_TX, DARK_TX]
-    suC = [LIGHT_SUB, DARK_SUB, DARK_SUB]
-    glC = [0, 0.6, 0.6]
-  } else if (link === 'prev') {
-    stops = [0, 0.65, 1]
-    bgC = [DARK, DARK, LIGHT]
-    coC = [DARK_TX, DARK_TX, LIGHT_TX]
-    suC = [DARK_SUB, DARK_SUB, LIGHT_SUB]
-    glC = [0.6, 0.6, 0]
-  } else {
-    stops = [0, 0.3, 0.48, 1]
-    bgC = [LIGHT, DARK, DARK, LIGHT]
-    coC = [LIGHT_TX, DARK_TX, DARK_TX, LIGHT_TX]
-    suC = [LIGHT_SUB, DARK_SUB, DARK_SUB, LIGHT_SUB]
-    glC = [0, 0.6, 0.6, 0]
-  }
-
-  const bg = useTransform(scrollYProgress, stops, bgC)
-  const color = useTransform(scrollYProgress, stops, coC)
-  const sub = useTransform(scrollYProgress, stops, suC)
-  const glow = useTransform(scrollYProgress, stops, glC)
+  // base → peak (שיא) → base, עם החזרה לאט (מתוח על המחצית האחרונה).
+  const stops = [0, 0.3, 0.48, 1]
+  const bg = useTransform(scrollYProgress, stops, [pal.base, pal.peak, pal.peak, pal.base])
+  const color = useTransform(scrollYProgress, stops, [pal.baseTx, pal.peakTx, pal.peakTx, pal.baseTx])
+  const sub = useTransform(scrollYProgress, stops, [pal.baseSub, pal.peakSub, pal.peakSub, pal.baseSub])
+  const glow = useTransform(scrollYProgress, stops, [0, 0.6, 0.6, 0])
 
   return (
     <motion.section
@@ -92,6 +62,90 @@ export function ExperienceBand({
         </motion.p>
       </div>
     </motion.section>
+  )
+}
+
+// ── "קצת עליי" — סקשן מפוצל לשני צדדים (מודע-מצב דרך הטוקנים) ──
+// פאנל אחד בצבע ההפוך למצב (bg-foreground), השני בקנבס הדף. שני
+// הצדדים מחליקים פנימה מהקצוות בכניסה לתצוגה — תחושת "פיצול".
+const ABOUT_POINTS = ['מגיע אליך עם כל הציוד', 'סריקת 360° מלאה של הנכס', 'מסירה תוך 48 שעות']
+
+export function AboutSplit() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const yDark = useTransform(scrollYProgress, [0, 1], ['-5%', '5%'])
+  const yLight = useTransform(scrollYProgress, [0, 1], ['5%', '-5%'])
+  const ease = [0.22, 1, 0.36, 1] as const
+
+  return (
+    <section ref={ref} className="relative grid min-h-screen overflow-hidden md:grid-cols-2">
+      {/* פאנל היפוך-מצב: כהה בבהיר, בהיר בכהה */}
+      <motion.div
+        initial={{ x: 48, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        viewport={{ once: true, margin: '-12%' }}
+        transition={{ duration: 0.7, ease }}
+        className="relative flex items-center justify-center overflow-hidden bg-foreground px-8 py-24 sm:px-12"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(60% 50% at 70% 28%, ${ACCENT}29, transparent 70%)` }}
+        />
+        <motion.div style={{ y: yDark }} className="relative max-w-md">
+          <span className="inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-[0.2em] text-background/60">
+            <span className="h-2 w-2 rounded-full" style={{ background: ACCENT }} />
+            מי מאחורי העדשה
+          </span>
+          <h2
+            className="mt-5 font-display font-black leading-[0.9] text-background"
+            style={{ fontSize: 'clamp(2.6rem,7vw,5.5rem)', letterSpacing: '-0.04em' }}
+          >
+            קצת
+            <br />
+            עליי<span style={{ color: ACCENT }}>.</span>
+          </h2>
+        </motion.div>
+      </motion.div>
+
+      {/* פאנל קנבס-הדף: טקסט + נקודות מפתח */}
+      <motion.div
+        initial={{ x: -48, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        viewport={{ once: true, margin: '-12%' }}
+        transition={{ duration: 0.7, ease, delay: 0.08 }}
+        className="relative flex items-center bg-background px-8 py-24 sm:px-12"
+      >
+        <motion.div style={{ y: yLight }} className="max-w-md">
+          <p className="text-body-lg leading-relaxed text-foreground">
+            אני מצלם נכסים והופך אותם לסיורים וירטואליים 360° — שירות מלא מקצה לקצה.
+          </p>
+          <p className="mt-4 text-body leading-relaxed text-muted-foreground">
+            מגיע אליך, סורק את הנכס, ובונה את הסיור עד שהוא מוכן להטמעה — עם לינק וקוד מוכן לאתר שלך.
+          </p>
+          <ul className="mt-8 space-y-3.5">
+            {ABOUT_POINTS.map((t) => (
+              <li key={t} className="flex items-center gap-3 text-body font-medium text-foreground">
+                <span
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                  style={{ background: `${ACCENT}1f` }}
+                >
+                  <Check size={14} strokeWidth={3} style={{ color: ACCENT }} />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      </motion.div>
+
+      {/* קו כתום דק שמפריד בין הצדדים (דסקטופ) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 md:block"
+        style={{ background: `linear-gradient(to bottom, transparent, ${ACCENT}66, transparent)` }}
+      />
+    </section>
   )
 }
 
