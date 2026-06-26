@@ -6,8 +6,14 @@
 
 import Link from 'next/link'
 import { ArrowLeft, MessageCircle } from 'lucide-react'
-import { Reveal, CountUp } from '@/components/anim'
-import { ReactiveText, Magnetic, ScrollModes } from '@/components/interactive'
+import { Reveal } from '@/components/anim'
+import { ReactiveText, Magnetic } from '@/components/interactive'
+import {
+  ExperienceBand,
+  StatsGhost,
+  WipeDivider,
+  ProcessThread,
+} from '@/components/home-fx'
 import Faq, { type FaqItem } from '@/components/Faq'
 import ContactForm from '@/components/ContactForm'
 
@@ -26,7 +32,6 @@ const FAQ_ITEMS: FaqItem[] = [
 export default function HomePage() {
   return (
     <main className="flex-1">
-      <ScrollModes />
       {/* ======================= HERO ======================= */}
       <section className="relative overflow-hidden">
         {/* רקע עדין: זוהר כתום + מרקם נקודות (מותאם-מצב) */}
@@ -123,54 +128,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===================== השירות + מספרים ===================== */}
-      <section id="service" className="mx-auto max-w-[1240px] px-6 py-24">
-        <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-end">
-          <Reveal>
-            <ReactiveText
-              as="h2"
-              className="font-display text-heading font-black leading-[0.95] tracking-tight text-foreground sm:text-heading-lg"
-              text={'לא תמונות.\nחוויית מקום.'}
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="group rounded-2xl p-6 text-body-lg text-muted-foreground transition-colors duration-500 hover:bg-accent/[0.08] hover:text-foreground sm:p-8">
-              סיור 360° נותן ללקוח לצעוד בתוך הנכס, להסתובב בכל חדר ולהרגיש את
-              החלל והאור — בדיוק כמו ביקור פיזי. וזה עובד.
-            </p>
-          </Reveal>
-        </div>
-
-        <div className="mt-16 grid gap-y-10 border-t border-border pt-12 sm:grid-cols-3 sm:divide-x sm:divide-border sm:rtl:divide-x-reverse">
-          <Reveal>
-            <div className="group sm:px-8 sm:first:pr-0">
-              <p className="font-display text-heading-lg font-black tracking-tight text-foreground transition-colors duration-300 group-hover:text-accent">
-                <CountUp to={2.7} decimals={1} suffix="×" />
-              </p>
-              <p className="mt-2 text-body text-muted-foreground">יותר זמן צפייה מול תמונות רגילות</p>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="group sm:px-8">
-              <p className="font-display text-heading-lg font-black tracking-tight text-foreground transition-colors duration-300 group-hover:text-accent">
-                24<span className="text-accent">/</span>7
-              </p>
-              <p className="mt-2 text-body text-muted-foreground">הנכס פתוח לביקור, מכל מכשיר</p>
-            </div>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <div className="group sm:px-8">
-              <p className="font-display text-heading-lg font-black tracking-tight text-foreground transition-colors duration-300 group-hover:text-accent">
-                <CountUp to={48} suffix=" שעות" />
-              </p>
-              <p className="mt-2 text-body text-muted-foreground">מהצילום ועד סיור מוכן</p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* אפקט 1 — באנד חוויה (גרדיאנט חם רציף + זוהר כתום) */}
+      <ExperienceBand />
+      {/* אפקט 2 — מספרים עם כיתוב-רפאים "360°" ב-parallax */}
+      <StatsGhost />
+      {/* אפקט 4 — מעבר Wipe כתום */}
+      <WipeDivider />
+      {/* אפקט 3 — איך זה עובד (חוט כתום שמצייר את עצמו) */}
+      <ProcessThread />
 
       {/* ===================== אודות (אזור מצב מתחלף) ===================== */}
-      <section data-mode="dark" className="mx-auto max-w-[1240px] px-6 py-24">
+      <section className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
           <Reveal>
             <ReactiveText
@@ -202,7 +170,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== מה מקבלים + קוד הטמעה ===================== */}
-      <section data-mode="light" className="mx-auto max-w-[1240px] px-6 py-24">
+      <section className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <Reveal className="min-w-0">
             <div>
@@ -239,7 +207,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== מחירים ===================== */}
-      <section id="pricing" data-mode="dark" className="mx-auto max-w-[1240px] px-6 py-24">
+      <section id="pricing" className="mx-auto max-w-[1240px] px-6 py-24">
         <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
           <Reveal>
             <ReactiveText
@@ -270,7 +238,7 @@ export default function HomePage() {
       </section>
 
       {/* ===================== FAQ ===================== */}
-      <section id="faq" data-mode="light" className="mx-auto max-w-[1240px] px-6 py-24">
+      <section id="faq" className="mx-auto max-w-[1240px] px-6 py-24">
         <Reveal>
           <ReactiveText
             as="h2"
